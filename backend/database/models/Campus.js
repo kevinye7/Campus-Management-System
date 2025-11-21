@@ -19,7 +19,11 @@ const Campus = db.define("campus", {
   },
 
   description: {
+    type: Sequelize.TEXT,
+  },
+  imageUrl: {
     type: Sequelize.STRING,
+    defaultValue: "https://t4.ftcdn.net/jpg/15/12/04/11/360_F_1512041110_c0NFJDcHLmUJiwfDowzcKUgsPALmbjdD.jpg"
   }
 });
 
