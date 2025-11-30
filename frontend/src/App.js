@@ -17,7 +17,9 @@ import {
   EditCampusContainer
 } from './components/containers';
 import LoginContainer from './components/containers/LoginContainer';
+import AdminManagementContainer from './components/containers/AdminManagementContainer';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import { fetchCurrentUserThunk } from './store/thunks';
 
 const App = () => {
@@ -70,6 +72,7 @@ const App = () => {
         <ProtectedRoute exact path="/newstudent" component={NewStudentContainer} />
         <ProtectedRoute exact path="/student/:id" component={StudentContainer} />
         <ProtectedRoute exact path="/student/:id/edit" component={EditStudentContainer} />
+        <AdminRoute exact path="/admin" component={AdminManagementContainer} />
         <Route path="*">
           <Redirect to="/login" />
         </Route>

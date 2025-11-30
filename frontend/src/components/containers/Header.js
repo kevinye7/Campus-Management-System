@@ -83,6 +83,14 @@ const Header = ({ user, isAuthenticated, logout }) => {
                 </Button>
               </Link>
 
+              {user && user.isAdmin && (
+                <Link className={classes.links} to={'/admin'} >
+                  <Button variant="contained" color="secondary" style={{marginRight: '10px'}}>
+                    Admin
+                  </Button>
+                </Link>
+              )}
+
               <Box style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {user && (
                   <Typography variant="body2" style={{ marginRight: '10px' }}>

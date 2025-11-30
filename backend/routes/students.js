@@ -8,7 +8,7 @@ const express = require('express');
 // Create an Express router function called "router"
 const router = express.Router();
 // Import database models
-const { Student, Campus } = require('../database/models');
+const { Student, Campus, UserGroup } = require('../database/models');
 
 // Import a middleware to replace "try and catch" for request handler, for a concise coding (fewer lines of code)
 const ash = require('express-async-handler');
@@ -25,19 +25,74 @@ const { authenticateToken } = require('../middleware/auth');
 //   }
 // });
 
-/* GET ALL STUDENTS: async/await using express-async-handler (ash) */
-// Automatically catches any error and sends to Routing Error-Handling Middleware (app.js)
-// It is the same as using "try-catch" and calling next(error)
+/* GET ALL STUDENTS - Filtered by user's user group */
 router.get('/', authenticateToken, ash(async(req, res) => {
-  let students = await Student.findAll({include: [Campus]});
+  let students;
+  
+  // Admins can see all students
+  if (req.user.isAdmin) {
+    students = await Student.findAll({include: [Campus]});
+  } else {
+    // Regular users only see students from campuses in their user group
+    if (!req.user.userGroupId) {
+      return res.status(200).json([]);  // No user group, no students
+    }
+    
+    const userGroup = await UserGroup.findByPk(req.user.userGroupId, {
+      include: [{ model: Campus }]
+    });
+    
+    if (!userGroup || !userGroup.campuses || userGroup.campuses.length === 0) {
+      return res.status(200).json([]);
+    }
+    
+    // Get campus IDs from user group
+    const campusIds = userGroup.campuses.map(c => c.id);
+    
+    // Find all students in those campuses
+    students = await Student.findAll({
+      where: {
+        campusId: campusIds
+      },
+      include: [Campus]
+    });
+  }
+  
   res.status(200).json(students);  // Status code 200 OK - request succeeded
 }));
 
-/* GET STUDENT BY ID */
+/* GET STUDENT BY ID - Check if user has access */
 router.get('/:id', authenticateToken, ash(async(req, res) => {
-  // Find student by Primary Key
-  let student = await Student.findByPk(req.params.id, {include: [Campus]});  // Get the student and its associated campus
-  res.status(200).json(student);  // Status code 200 OK - request succeeded
+  const studentId = parseInt(req.params.id);
+  
+  // Find student
+  let student = await Student.findByPk(studentId, {include: [Campus]});
+  
+  if (!student) {
+    return res.status(404).json({ error: 'Student not found' });
+  }
+  
+  // Admins can access any student
+  if (req.user.isAdmin) {
+    return res.status(200).json(student);
+  }
+  
+  // Regular users can only access students from campuses in their user group
+  if (!req.user.userGroupId || !student.campusId) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  
+  const userGroup = await UserGroup.findByPk(req.user.userGroupId, {
+    include: [{ model: Campus }]
+  });
+  
+  const hasAccess = userGroup && userGroup.campuses.some(c => c.id === student.campusId);
+  
+  if (!hasAccess) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  
+  res.status(200).json(student);
 }));
 
 /* ADD NEW STUDENT */

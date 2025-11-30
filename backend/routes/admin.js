@@ -18,6 +18,15 @@ router.get('/users', authenticateToken, requireAdmin, ash(async (req, res) => {
   res.json(users);
 }));
 
+/* GET ALL CAMPUSES - Admin only (for management screen) */
+router.get('/campuses', authenticateToken, requireAdmin, ash(async (req, res) => {
+  const { Student } = require('../database/models');
+  const campuses = await Campus.findAll({
+    include: [{ model: Student }]
+  });
+  res.json(campuses);
+}));
+
 /* GET ALL USER GROUPS - Admin only */
 router.get('/user-groups', authenticateToken, requireAdmin, ash(async (req, res) => {
   const userGroups = await UserGroup.findAll({
