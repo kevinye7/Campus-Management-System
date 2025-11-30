@@ -23,7 +23,8 @@ class EditCampusContainer extends Component {
       description: "",
       imageUrl: "",
       redirect: false, 
-      redirectId: null
+      redirectId: null,
+      errors: {}
     };
   }
 
@@ -46,10 +47,31 @@ class EditCampusContainer extends Component {
     }
   }
 
+  // Validation function
+  validate = () => {
+    const errors = {};
+    
+    if (!this.state.name.trim()) {
+      errors.name = "Campus name is required";
+    }
+    
+    if (!this.state.address.trim()) {
+      errors.address = "Address is required";
+    }
+    
+    return errors;
+  }
+
   // Capture input data when it is entered
   handleChange = event => {
+    const { name, value } = event.target;
     this.setState({
-      [event.target.name]: event.target.value
+      [name]: value,
+      // Clear error for this field when user starts typing
+      errors: {
+        ...this.state.errors,
+        [name]: undefined
+      }
     });
   }
 
@@ -57,12 +79,18 @@ class EditCampusContainer extends Component {
   handleSubmit = async event => {
     event.preventDefault();  // Prevent browser reload/refresh after submit.
 
+    const errors = this.validate();
+    if (Object.keys(errors).length > 0) {
+      this.setState({ errors });
+      return;
+    }
+
     let campus = {
       id: this.props.campus.id,
-      name: this.state.name,
-      address: this.state.address,
-      description: this.state.description || null,
-      imageUrl: this.state.imageUrl || null
+      name: this.state.name.trim(),
+      address: this.state.address.trim(),
+      description: this.state.description.trim() || null,
+      imageUrl: this.state.imageUrl.trim() || null
     };
     
     // Edit campus in back-end database
@@ -71,7 +99,8 @@ class EditCampusContainer extends Component {
     // Update state, and trigger redirect to show the updated campus
     this.setState({
       redirect: true, 
-      redirectId: updatedCampus.id
+      redirectId: updatedCampus.id,
+      errors: {}
     });
   }
 
@@ -104,7 +133,9 @@ class EditCampusContainer extends Component {
         <EditCampusView 
           campus={this.props.campus}
           handleChange = {this.handleChange} 
-          handleSubmit={this.handleSubmit}      
+          handleSubmit={this.handleSubmit}
+          errors={this.state.errors}
+          formData={this.state}
         />
       </div>          
     );

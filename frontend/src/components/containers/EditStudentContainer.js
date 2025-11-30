@@ -25,7 +25,8 @@ class EditStudentContainer extends Component {
       gpa: "",
       campusId: null,
       redirect: false, 
-      redirectId: null
+      redirectId: null,
+      errors: {}
     };
   }
 
@@ -50,10 +51,45 @@ class EditStudentContainer extends Component {
     }
   }
 
+  // Validation function
+  validate = () => {
+    const errors = {};
+    
+    if (!this.state.firstname.trim()) {
+      errors.firstname = "First name is required";
+    }
+    
+    if (!this.state.lastname.trim()) {
+      errors.lastname = "Last name is required";
+    }
+    
+    if (!this.state.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.state.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+    
+    if (this.state.gpa && (parseFloat(this.state.gpa) < 0 || parseFloat(this.state.gpa) > 4.0)) {
+      errors.gpa = "GPA must be between 0.0 and 4.0";
+    }
+    
+    if (this.state.campusId && isNaN(parseInt(this.state.campusId))) {
+      errors.campusId = "Campus ID must be a valid number";
+    }
+    
+    return errors;
+  }
+
   // Capture input data when it is entered
   handleChange = event => {
+    const { name, value } = event.target;
     this.setState({
-      [event.target.name]: event.target.value
+      [name]: value,
+      // Clear error for this field when user starts typing
+      errors: {
+        ...this.state.errors,
+        [name]: undefined
+      }
     });
   }
 
@@ -61,12 +97,18 @@ class EditStudentContainer extends Component {
   handleSubmit = async event => {
     event.preventDefault();  // Prevent browser reload/refresh after submit.
 
+    const errors = this.validate();
+    if (Object.keys(errors).length > 0) {
+      this.setState({ errors });
+      return;
+    }
+
     let student = {
       id: this.props.student.id,
-      firstname: this.state.firstname,
-      lastname: this.state.lastname,
-      email: this.state.email,
-      imageUrl: this.state.imageUrl || null,
+      firstname: this.state.firstname.trim(),
+      lastname: this.state.lastname.trim(),
+      email: this.state.email.trim(),
+      imageUrl: this.state.imageUrl.trim() || null,
       gpa: this.state.gpa ? parseFloat(this.state.gpa) : null,
       campusId: this.state.campusId ? parseInt(this.state.campusId) : null
     };
@@ -77,7 +119,8 @@ class EditStudentContainer extends Component {
     // Update state, and trigger redirect to show the updated student
     this.setState({
       redirect: true, 
-      redirectId: updatedStudent.id
+      redirectId: updatedStudent.id,
+      errors: {}
     });
   }
 
@@ -110,7 +153,9 @@ class EditStudentContainer extends Component {
         <EditStudentView 
           student={this.props.student}
           handleChange = {this.handleChange} 
-          handleSubmit={this.handleSubmit}      
+          handleSubmit={this.handleSubmit}
+          errors={this.state.errors}
+          formData={this.state}
         />
       </div>          
     );
