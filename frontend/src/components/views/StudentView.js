@@ -11,7 +11,7 @@ const StudentView = (props) => {
   return (
     <div>
       <h1>{student.firstname + " " + student.lastname}</h1>
-      <h3>{student.campus.name}</h3>
+      <h3>{student.campus ? student.campus.name : "Not enrolled at any campus"}</h3>
     </div>
   );
 

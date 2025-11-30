@@ -16,7 +16,7 @@ const CampusView = (props) => {
       <h1>{campus.name}</h1>
       <p>{campus.address}</p>
       <p>{campus.description}</p>
-      {campus.students.map( student => {
+      {campus.students && campus.students.map( student => {
         let name = student.firstname + " " + student.lastname;
         return (
           <div key={student.id}>
@@ -26,6 +26,9 @@ const CampusView = (props) => {
           </div>
         );
       })}
+      {(!campus.students || campus.students.length === 0) && (
+        <p>No students enrolled at this campus.</p>
+      )}
     </div>
   );
 };
