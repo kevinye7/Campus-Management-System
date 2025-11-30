@@ -14,8 +14,12 @@ const CampusView = (props) => {
   return (
     <div>
       <h1>{campus.name}</h1>
+      {campus.imageUrl && (
+        <img src={campus.imageUrl} alt={campus.name} style={{width: '400px', height: '300px', objectFit: 'cover'}} />
+      )}
       <p>{campus.address}</p>
       <p>{campus.description}</p>
+      <h2>Enrolled Students:</h2>
       <button onClick={() => deleteCampus(campus.id)}>Delete Campus</button>
       <Link to={`/campus/${campus.id}/edit`}>
         <button>Edit Campus</button>
@@ -26,7 +30,10 @@ const CampusView = (props) => {
         return (
           <div key={student.id}>
             <Link to={`/student/${student.id}`}>
-              <h2>{name}</h2>
+              {student.imageUrl && (
+                <img src={student.imageUrl} alt={name} style={{width: '100px', height: '100px', objectFit: 'cover', marginRight: '10px'}} />
+              )}
+              <h3>{name}</h3>
             </Link>             
           </div>
         );

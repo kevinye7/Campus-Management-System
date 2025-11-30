@@ -13,6 +13,20 @@ const StudentView = (props) => {
   return (
     <div>
       <h1>{student.firstname + " " + student.lastname}</h1>
+      {student.imageUrl && (
+        <img src={student.imageUrl} alt={student.firstname + " " + student.lastname} style={{width: '300px', height: '300px', objectFit: 'cover'}} />
+      )}
+      <p><strong>Email:</strong> {student.email}</p>
+      {student.gpa !== null && student.gpa !== undefined && (
+        <p><strong>GPA:</strong> {student.gpa}</p>
+      )}
+      {student.campus ? (
+        <p>
+          <strong>Campus:</strong> <Link to={`/campus/${student.campus.id}`}>{student.campus.name}</Link>
+        </p>
+      ) : (
+        <p><strong>Campus:</strong> Not enrolled at any campus</p>
+      )}
       <h3>{student.campus ? student.campus.name : "Not enrolled at any campus"}</h3>
       <Link to={`/student/${student.id}/edit`}>
         <button>Edit Student</button>
