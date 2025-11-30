@@ -5,80 +5,104 @@ The Views component is responsible for rendering web page with data provided by 
 It constructs a React component to display the new campus page.
 ================================================== */
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Box from '@mui/material/Box';
 import { makeStyles } from '@mui/styles';
 
 // Create styling for the input form
 const useStyles = makeStyles( () => ({
-  formContainer:{  
-    width: '500px',
-    backgroundColor: '#f0f0f5',
-    borderRadius: '5px',
-    margin: 'auto',
+  root: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '20px',
   },
-  title: {
-    flexGrow: 1,
-    textAlign: 'left',
-    textDecoration: 'none'
-  }, 
-  customizeAppBar:{
-    backgroundColor: '#11153e',
-    shadows: ['none'],
+  formContainer:{  
+    width: '100%',
+    maxWidth: '600px',
   },
   formTitle:{
-    backgroundColor:'#c5c8d6',
-    marginBottom: '15px',
-    textAlign: 'center',
-    borderRadius: '5px 5px 0px 0px',
-    padding: '3px'
+    marginBottom: '20px',
+  },
+  formField: {
+    marginBottom: '20px',
+  },
+  submitButton: {
+    marginTop: '10px',
   },
 }));
 
 const NewCampusView = (props) => {
-  const {handleChange, handleSubmit } = props;
+  const {handleChange, handleSubmit, errors, formData} = props;
   const classes = useStyles();
 
   // Render a New Campus view with an input form
   return (
-    <div>
-      <h1>New Campus</h1>
+    <div className={classes.root}>
+      <Card className={classes.formContainer}>
+        <CardContent>
+          <Typography variant="h4" component="h1" className={classes.formTitle} gutterBottom>
+            Add New Campus
+          </Typography>
+          <form onSubmit={(e) => handleSubmit(e)}>
+            <TextField
+              fullWidth
+              label="Campus Name"
+              name="name"
+              value={formData?.name || ''}
+              onChange={handleChange}
+              error={!!errors.name}
+              helperText={errors.name}
+              required
+              className={classes.formField}
+            />
 
-      <div className={classes.root}>
-        <div className={classes.formContainer}>
-          <div className={classes.formTitle}>
-            <Typography style={{fontWeight: 'bold', fontFamily: 'Courier, sans-serif', fontSize: '20px', color: '#11153e'}}>
-              Add a Campus
-            </Typography>
-          </div>
-          <form style={{textAlign: 'center'}} onSubmit={(e) => handleSubmit(e)}>
-            <label style= {{color:'#11153e', fontWeight: 'bold'}}>Name: </label>
-            <input type="text" name="name" onChange ={(e) => handleChange(e)} required />
-            <br/>
-            <br/>
+            <TextField
+              fullWidth
+              label="Address"
+              name="address"
+              value={formData?.address || ''}
+              onChange={handleChange}
+              error={!!errors.address}
+              helperText={errors.address}
+              required
+              className={classes.formField}
+            />
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Address: </label>
-            <input type="text" name="address" onChange={(e) => handleChange(e)} required />
-            <br/>
-            <br/>
+            <TextField
+              fullWidth
+              label="Description (optional)"
+              name="description"
+              multiline
+              rows={4}
+              value={formData?.description || ''}
+              onChange={handleChange}
+              error={!!errors.description}
+              helperText={errors.description}
+              className={classes.formField}
+            />
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Description: </label>
-            <textarea name="description" onChange={(e) => handleChange(e)} rows="4" style={{width: '300px'}} />
-            <br/>
-            <br/>
+            <TextField
+              fullWidth
+              label="Image URL (optional)"
+              name="imageUrl"
+              value={formData?.imageUrl || ''}
+              onChange={handleChange}
+              error={!!errors.imageUrl}
+              helperText={errors.imageUrl}
+              className={classes.formField}
+            />
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Image URL: </label>
-            <input type="text" name="imageUrl" onChange={(e) => handleChange(e)} />
-            <br/>
-            <br/>
-
-            <Button variant="contained" color="primary" type="submit">
-              Submit
-            </Button>
-            <br/>
-            <br/>
+            <Box className={classes.submitButton}>
+              <Button variant="contained" color="primary" type="submit" fullWidth size="large">
+                Submit
+              </Button>
+            </Box>
           </form>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>    
   )
 }

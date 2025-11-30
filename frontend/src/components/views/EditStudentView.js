@@ -5,123 +5,139 @@ The Views component is responsible for rendering web page with data provided by 
 It constructs a React component to display the edit student page.
 ================================================== */
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Box from '@mui/material/Box';
 import { makeStyles } from '@mui/styles';
 
 // Create styling for the input form
 const useStyles = makeStyles( () => ({
-  formContainer:{  
-    width: '500px',
-    backgroundColor: '#f0f0f5',
-    borderRadius: '5px',
-    margin: 'auto',
+  root: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '20px',
   },
-  title: {
-    flexGrow: 1,
-    textAlign: 'left',
-    textDecoration: 'none'
-  }, 
-  customizeAppBar:{
-    backgroundColor: '#11153e',
-    shadows: ['none'],
+  formContainer:{  
+    width: '100%',
+    maxWidth: '600px',
   },
   formTitle:{
-    backgroundColor:'#c5c8d6',
-    marginBottom: '15px',
-    textAlign: 'center',
-    borderRadius: '5px 5px 0px 0px',
-    padding: '3px'
+    marginBottom: '20px',
+  },
+  formField: {
+    marginBottom: '20px',
+  },
+  submitButton: {
+    marginTop: '10px',
   },
 }));
 
 const EditStudentView = (props) => {
-  const {handleChange, handleSubmit, student } = props;
+  const {handleChange, handleSubmit, student, errors, formData } = props;
   const classes = useStyles();
+
+  // Use formData if available (from container state), otherwise use student prop
+  const currentData = formData || {
+    firstname: student?.firstname || '',
+    lastname: student?.lastname || '',
+    email: student?.email || '',
+    imageUrl: student?.imageUrl || '',
+    gpa: student?.gpa || '',
+    campusId: student?.campusId || student?.campus?.id || ''
+  };
 
   // Render an Edit Student view with an input form
   return (
-    <div>
-      <h1>Edit Student</h1>
-
-      <div className={classes.root}>
-        <div className={classes.formContainer}>
-          <div className={classes.formTitle}>
-            <Typography style={{fontWeight: 'bold', fontFamily: 'Courier, sans-serif', fontSize: '20px', color: '#11153e'}}>
-              Edit Student Information
-            </Typography>
-          </div>
-          <form style={{textAlign: 'center'}} onSubmit={(e) => handleSubmit(e)}>
-            <label style= {{color:'#11153e', fontWeight: 'bold'}}>First Name: </label>
-            <input 
-              type="text" 
-              name="firstname" 
-              defaultValue={student.firstname}
-              onChange ={(e) => handleChange(e)} 
+    <div className={classes.root}>
+      <Card className={classes.formContainer}>
+        <CardContent>
+          <Typography variant="h4" component="h1" className={classes.formTitle} gutterBottom>
+            Edit Student Information
+          </Typography>
+          <form onSubmit={(e) => handleSubmit(e)}>
+            <TextField
+              fullWidth
+              label="First Name"
+              name="firstname"
+              value={currentData.firstname}
+              onChange={handleChange}
+              error={!!errors.firstname}
+              helperText={errors.firstname}
+              required
+              className={classes.formField}
             />
-            <br/>
-            <br/>
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Last Name: </label>
-            <input 
-              type="text" 
-              name="lastname" 
-              defaultValue={student.lastname}
-              onChange={(e) => handleChange(e)} 
+            <TextField
+              fullWidth
+              label="Last Name"
+              name="lastname"
+              value={currentData.lastname}
+              onChange={handleChange}
+              error={!!errors.lastname}
+              helperText={errors.lastname}
+              required
+              className={classes.formField}
             />
-            <br/>
-            <br/>
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Email: </label>
-            <input 
-              type="email" 
-              name="email" 
-              defaultValue={student.email}
-              onChange={(e) => handleChange(e)} 
+            <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={currentData.email}
+              onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email}
+              required
+              className={classes.formField}
             />
-            <br/>
-            <br/>
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Image URL: </label>
-            <input 
-              type="text" 
-              name="imageUrl" 
-              defaultValue={student.imageUrl || ""}
-              onChange={(e) => handleChange(e)} 
+            <TextField
+              fullWidth
+              label="Image URL (optional)"
+              name="imageUrl"
+              value={currentData.imageUrl}
+              onChange={handleChange}
+              error={!!errors.imageUrl}
+              helperText={errors.imageUrl}
+              className={classes.formField}
             />
-            <br/>
-            <br/>
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>GPA: </label>
-            <input 
-              type="number" 
-              name="gpa" 
-              step="0.1"
-              min="0.0"
-              max="4.0"
-              defaultValue={student.gpa || ""}
-              onChange={(e) => handleChange(e)} 
+            <TextField
+              fullWidth
+              label="GPA (optional)"
+              name="gpa"
+              type="number"
+              inputProps={{ step: "0.1", min: "0.0", max: "4.0" }}
+              value={currentData.gpa}
+              onChange={handleChange}
+              error={!!errors.gpa}
+              helperText={errors.gpa || "Must be between 0.0 and 4.0"}
+              className={classes.formField}
             />
-            <br/>
-            <br/>
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Campus Id: </label>
-            <input 
-              type="text" 
-              name="campusId" 
-              defaultValue={student.campusId || student.campus?.id || ""}
-              onChange={(e) => handleChange(e)} 
+            <TextField
+              fullWidth
+              label="Campus ID (optional)"
+              name="campusId"
+              type="number"
+              value={currentData.campusId}
+              onChange={handleChange}
+              error={!!errors.campusId}
+              helperText={errors.campusId}
+              className={classes.formField}
             />
-            <br/>
-            <br/>
 
-            <Button variant="contained" color="primary" type="submit">
-              Submit
-            </Button>
-            <br/>
-            <br/>
+            <Box className={classes.submitButton}>
+              <Button variant="contained" color="primary" type="submit" fullWidth size="large">
+                Submit
+              </Button>
+            </Box>
           </form>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>    
   )
 }
