@@ -16,6 +16,9 @@ export const fetchAllCampuses = (campuses) => {
 export const editCampus = (campus) => {
   return {
     type: at.EDIT_CAMPUS,
+export const addCampus = (campus) => {
+  return {
+    type: at.ADD_CAMPUS,
     payload: campus,
   };
 };
