@@ -38,6 +38,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import LockResetIcon from '@mui/icons-material/LockReset';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -89,6 +90,7 @@ const AdminManagementView = (props) => {
     handleDeleteUserGroup,
     handleAssignUserToGroup,
     handleAssignUserToAssociation,
+    handleResetPassword,
     error,
     success
   } = props;
@@ -113,7 +115,8 @@ const AdminManagementView = (props) => {
     lastName: '',
     userGroupId: '',
     isAssociationAdmin: false,
-    isGroupAdmin: false
+    isGroupAdmin: false,
+    useDefaultPassword: true
   });
   const [userGroupFormData, setUserGroupFormData] = useState({
     name: '',
@@ -132,7 +135,8 @@ const AdminManagementView = (props) => {
         lastName: user.lastName || '',
         userGroupId: user.userGroupId || '',
         isAssociationAdmin: user.isAssociationAdmin || false,
-        isGroupAdmin: user.isGroupAdmin || false
+        isGroupAdmin: user.isGroupAdmin || false,
+        useDefaultPassword: false
       });
     } else {
       setEditingUser(null);
@@ -144,7 +148,8 @@ const AdminManagementView = (props) => {
         lastName: '',
         userGroupId: '',
         isAssociationAdmin: false,
-        isGroupAdmin: false
+        isGroupAdmin: false,
+        useDefaultPassword: true
       });
     }
     setUserDialogOpen(true);
@@ -261,6 +266,7 @@ const AdminManagementView = (props) => {
                   <TableCell>User Group</TableCell>
                   <TableCell>Role</TableCell>
                   <TableCell>Actions</TableCell>
+                  <TableCell>Password</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -288,6 +294,16 @@ const AdminManagementView = (props) => {
                         onClick={() => handleDeleteUser(user.id)}
                       >
                         <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        size="small"
+                        color="warning"
+                        onClick={() => handleResetPassword(user.id)}
+                        title="Reset Password"
+                      >
+                        <LockResetIcon />
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -379,13 +395,26 @@ const AdminManagementView = (props) => {
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
             />
-            <TextField
-              label={editingUser ? "New Password (leave blank to keep current)" : "Password"}
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required={!editingUser}
-            />
+            {!editingUser && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.useDefaultPassword}
+                    onChange={(e) => setFormData({ ...formData, useDefaultPassword: e.target.checked, password: '' })}
+                  />
+                }
+                label="Use default password (will be emailed to user)"
+              />
+            )}
+            {!formData.useDefaultPassword && (
+              <TextField
+                label={editingUser ? "New Password (leave blank to keep current)" : "Password"}
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required={!editingUser}
+              />
+            )}
             <TextField
               label="First Name"
               value={formData.firstName}

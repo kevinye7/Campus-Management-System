@@ -12,6 +12,7 @@ import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import { makeStyles } from '@mui/styles';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -34,6 +35,10 @@ const useStyles = makeStyles(() => ({
   },
   submitButton: {
     marginTop: '10px',
+  },
+  signupLink: {
+    marginTop: '15px',
+    textAlign: 'center',
   },
 }));
 
@@ -93,6 +98,12 @@ const LoginView = (props) => {
               <Button variant="contained" color="primary" type="submit" fullWidth size="large">
                 Login
               </Button>
+            </Box>
+
+            <Box className={classes.signupLink}>
+              <Typography variant="body2">
+                Don't have an account? <Link to="/register">Create an association</Link>
+              </Typography>
             </Box>
           </form>
         </CardContent>

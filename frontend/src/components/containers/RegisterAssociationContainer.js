@@ -6,10 +6,9 @@ Container for public association registration.
 import Header from './Header';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 import RegisterAssociationView from '../views/RegisterAssociationView';
-import axios from 'axios';
-import { loginThunk } from '../../store/thunks';
+import { registerAssociationThunk } from '../../store/thunks';
 
 class RegisterAssociationContainer extends Component {
   constructor(props) {

@@ -18,7 +18,8 @@ import {
   deleteUserGroupThunk,
   updateUserThunk,
   deleteUserThunk,
-  registerUserThunk
+  registerUserThunk,
+  resetPasswordThunk
 } from '../../store/thunks/admin';
 import { assignUserToGroupThunk, assignUserToAssociationThunk } from '../../store/thunks';
 
@@ -188,6 +189,19 @@ class AdminManagementContainer extends Component {
     }
   };
 
+  handleResetPassword = async (userId) => {
+    if (!window.confirm('Are you sure you want to reset this user\'s password? A new password will be generated and emailed to the user.')) {
+      return;
+    }
+    this.setState({ error: null, success: null });
+    const result = await this.props.resetPassword(userId);
+    if (result.success) {
+      this.setState({ success: 'Password reset successfully. Email sent to user.' });
+    } else {
+      this.setState({ error: result.error });
+    }
+  };
+
   render() {
     // Redirect if not association admin or group admin
     if (!this.props.user || (!this.props.user.isAssociationAdmin && !this.props.user.isGroupAdmin)) {
@@ -212,6 +226,7 @@ class AdminManagementContainer extends Component {
           handleDeleteUserGroup={this.handleDeleteUserGroup}
           handleAssignUserToGroup={this.handleAssignUserToGroup}
           handleAssignUserToAssociation={this.handleAssignUserToAssociation}
+          handleResetPassword={this.handleResetPassword}
           error={this.state.error}
           success={this.state.success}
         />
@@ -240,6 +255,7 @@ const mapDispatch = (dispatch) => {
     registerUser: (data) => dispatch(registerUserThunk(data)),
     assignUserToGroup: (usernameOrEmail, groupId) => dispatch(assignUserToGroupThunk(usernameOrEmail, groupId)),
     assignUserToAssociation: (usernameOrEmail, associationId) => dispatch(assignUserToAssociationThunk(usernameOrEmail, associationId)),
+    resetPassword: (userId) => dispatch(resetPasswordThunk(userId)),
   };
 };
 

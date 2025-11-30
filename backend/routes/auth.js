@@ -9,6 +9,7 @@ const { User, UserGroup, Association } = require('../database/models');
 const { Op } = require('sequelize');
 const ash = require('express-async-handler');
 const { authenticateToken, requireAssociationAdmin, generateToken } = require('../middleware/auth');
+const { generateDefaultPassword, sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/email');
 
 /* POST /api/auth/register-association - Public registration for new association */
 router.post('/register-association', ash(async (req, res) => {
@@ -79,11 +80,19 @@ router.post('/register', authenticateToken, ash(async (req, res) => {
   if (!req.user.isAssociationAdmin && !req.user.isGroupAdmin) {
     return res.status(403).json({ error: 'Association admin or group admin access required' });
   }
-  const { username, email, password, firstName, lastName, userGroupId, isAssociationAdmin, isGroupAdmin } = req.body;
+  const { username, email, password, firstName, lastName, userGroupId, isAssociationAdmin, isGroupAdmin, useDefaultPassword } = req.body;
 
   // Validate required fields
-  if (!username || !email || !password || !firstName || !lastName) {
+  if (!username || !email || !firstName || !lastName) {
     return res.status(400).json({ error: 'All required fields must be provided' });
+  }
+
+  // Generate default password if requested, otherwise use provided password
+  let userPassword = password;
+  let defaultPassword = null;
+  if (useDefaultPassword || !password) {
+    defaultPassword = generateDefaultPassword();
+    userPassword = defaultPassword;
   }
 
   // Check if user already exists
@@ -113,7 +122,7 @@ router.post('/register', authenticateToken, ash(async (req, res) => {
   const newUser = await User.create({
     username,
     email,
-    password,
+    password: userPassword,
     firstName,
     lastName,
     associationId: req.user.associationId,
@@ -122,6 +131,16 @@ router.post('/register', authenticateToken, ash(async (req, res) => {
     isAssociationAdmin: req.user.isAssociationAdmin ? (isAssociationAdmin || false) : false,
     isGroupAdmin: isGroupAdmin || false
   });
+
+  // Send welcome email with default password if one was generated
+  if (defaultPassword) {
+    try {
+      await sendWelcomeEmail(email, firstName, username, defaultPassword);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Continue even if email fails - user is still created
+    }
+  }
 
   // Get user with user group and association
   const userWithGroup = await User.findByPk(newUser.id, {
@@ -282,6 +301,58 @@ router.post('/assign-association', authenticateToken, ash(async (req, res) => {
   });
 
   res.json({ message: 'User assigned to association successfully', user: updatedUser });
+}));
+
+/* POST /api/auth/reset-password - Reset user password (association admin only) */
+router.post('/reset-password', authenticateToken, requireAssociationAdmin, ash(async (req, res) => {
+  const { userId, usernameOrEmail } = req.body;
+
+  if (!userId && !usernameOrEmail) {
+    return res.status(400).json({ error: 'User ID or username/email is required' });
+  }
+
+  // Find user
+  let user;
+  if (userId) {
+    user = await User.findByPk(userId);
+  } else {
+    user = await User.findOne({
+      where: {
+        [Op.or]: [{ username: usernameOrEmail }, { email: usernameOrEmail }]
+      }
+    });
+  }
+
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  // Verify user belongs to same association
+  if (user.associationId !== req.user.associationId) {
+    return res.status(403).json({ error: 'Cannot reset password for user from different association' });
+  }
+
+  // Generate new password
+  const newPassword = generateDefaultPassword();
+
+  // Update user password
+  user.password = newPassword;
+  await user.save();
+
+  // Send password reset email
+  try {
+    await sendPasswordResetEmail(user.email, user.firstName, newPassword);
+  } catch (emailError) {
+    console.error('Failed to send password reset email:', emailError);
+    // Continue even if email fails - password is still reset
+  }
+
+  res.json({ 
+    message: 'Password reset successfully. Email sent to user.',
+    // In production, don't send password in response
+    // Only included here for admin confirmation
+    temporaryPassword: newPassword
+  });
 }));
 
 module.exports = router;

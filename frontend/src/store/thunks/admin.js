@@ -115,3 +115,14 @@ export const fetchAllAssociationsThunk = () => async (dispatch) => {
   }
 };
 
+// RESET USER PASSWORD
+export const resetPasswordThunk = (userId) => async (dispatch) => {
+  try {
+    const res = await axios.post('/api/auth/reset-password', { userId });
+    return { success: true, message: res.data.message };
+  } catch (err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Failed to reset password' };
+  }
+};
+
