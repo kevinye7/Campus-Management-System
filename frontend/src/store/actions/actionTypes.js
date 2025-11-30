@@ -2,6 +2,7 @@
 
 //All campuses
 export const FETCH_ALL_CAMPUSES = "FETCH_ALL_CAMPUSES";
+export const EDIT_CAMPUS = "EDIT_CAMPUS";
 
 //Single campus
 export const FETCH_CAMPUS = "FETCH_CAMPUS";
