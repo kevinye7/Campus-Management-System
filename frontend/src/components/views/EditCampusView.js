@@ -1,12 +1,12 @@
 /*==================================================
-NewStudentView.js
+EditCampusView.js
 
 The Views component is responsible for rendering web page with data provided by the corresponding Container component.
-It constructs a React component to display the new student page.
+It constructs a React component to display the edit campus page.
 ================================================== */
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { makeStyles } from '@mui/styles';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
 
 // Create styling for the input form
 const useStyles = makeStyles( () => ({
@@ -34,50 +34,63 @@ const useStyles = makeStyles( () => ({
   },
 }));
 
-const NewStudentView = (props) => {
-  const {handleChange, handleSubmit } = props;
+const EditCampusView = (props) => {
+  const {handleChange, handleSubmit, campus } = props;
   const classes = useStyles();
 
-  // Render a New Student view with an input form
+  // Render an Edit Campus view with an input form
   return (
     <div>
-      <h1>New Student</h1>
+      <h1>Edit Campus</h1>
 
       <div className={classes.root}>
         <div className={classes.formContainer}>
           <div className={classes.formTitle}>
             <Typography style={{fontWeight: 'bold', fontFamily: 'Courier, sans-serif', fontSize: '20px', color: '#11153e'}}>
-              Add a Student
+              Edit Campus Information
             </Typography>
           </div>
           <form style={{textAlign: 'center'}} onSubmit={(e) => handleSubmit(e)}>
-            <label style= {{color:'#11153e', fontWeight: 'bold'}}>First Name: </label>
-            <input type="text" name="firstname" onChange ={(e) => handleChange(e)} required />
+            <label style= {{color:'#11153e', fontWeight: 'bold'}}>Name: </label>
+            <input 
+              type="text" 
+              name="name" 
+              defaultValue={campus.name}
+              onChange ={(e) => handleChange(e)} 
+              required
+            />
             <br/>
             <br/>
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Last Name: </label>
-            <input type="text" name="lastname" onChange={(e) => handleChange(e)} required />
+            <label style={{color:'#11153e', fontWeight: 'bold'}}>Address: </label>
+            <input 
+              type="text" 
+              name="address" 
+              defaultValue={campus.address}
+              onChange={(e) => handleChange(e)} 
+              required
+            />
             <br/>
             <br/>
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Email: </label>
-            <input type="email" name="email" onChange={(e) => handleChange(e)} required />
+            <label style={{color:'#11153e', fontWeight: 'bold'}}>Description: </label>
+            <textarea 
+              name="description" 
+              defaultValue={campus.description || ""}
+              onChange={(e) => handleChange(e)} 
+              rows="4" 
+              style={{width: '300px'}} 
+            />
             <br/>
             <br/>
 
             <label style={{color:'#11153e', fontWeight: 'bold'}}>Image URL: </label>
-            <input type="text" name="imageUrl" onChange={(e) => handleChange(e)} />
-            <br/>
-            <br/>
-
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>GPA: </label>
-            <input type="number" name="gpa" step="0.1" min="0.0" max="4.0" onChange={(e) => handleChange(e)} />
-            <br/>
-            <br/>
-
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Campus Id: </label>
-            <input type="text" name="campusId" onChange={(e) => handleChange(e)} />
+            <input 
+              type="text" 
+              name="imageUrl" 
+              defaultValue={campus.imageUrl || ""}
+              onChange={(e) => handleChange(e)} 
+            />
             <br/>
             <br/>
 
@@ -87,10 +100,11 @@ const NewStudentView = (props) => {
             <br/>
             <br/>
           </form>
-          </div>
+        </div>
       </div>
     </div>    
   )
 }
 
-export default NewStudentView;
+export default EditCampusView;
+
