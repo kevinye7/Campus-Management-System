@@ -29,34 +29,29 @@ const { authenticateToken } = require('../middleware/auth');
 router.get('/', authenticateToken, ash(async(req, res) => {
   let students;
   
-  // Admins can see all students
-  if (req.user.isAdmin) {
-    students = await Student.findAll({include: [Campus]});
-  } else {
-    // Regular users only see students from campuses in their user group
-    if (!req.user.userGroupId) {
-      return res.status(200).json([]);  // No user group, no students
-    }
-    
-    const userGroup = await UserGroup.findByPk(req.user.userGroupId, {
-      include: [{ model: Campus }]
-    });
-    
-    if (!userGroup || !userGroup.campuses || userGroup.campuses.length === 0) {
-      return res.status(200).json([]);
-    }
-    
-    // Get campus IDs from user group
-    const campusIds = userGroup.campuses.map(c => c.id);
-    
-    // Find all students in those campuses
-    students = await Student.findAll({
-      where: {
-        campusId: campusIds
-      },
-      include: [Campus]
-    });
+  // All users (including admins) only see students from campuses in their user group
+  if (!req.user.userGroupId) {
+    return res.status(200).json([]);  // No user group, no students
   }
+  
+  const userGroup = await UserGroup.findByPk(req.user.userGroupId, {
+    include: [{ model: Campus }]
+  });
+  
+  if (!userGroup || !userGroup.campuses || userGroup.campuses.length === 0) {
+    return res.status(200).json([]);
+  }
+  
+  // Get campus IDs from user group
+  const campusIds = userGroup.campuses.map(c => c.id);
+  
+  // Find all students in those campuses
+  students = await Student.findAll({
+    where: {
+      campusId: campusIds
+    },
+    include: [Campus]
+  });
   
   res.status(200).json(students);  // Status code 200 OK - request succeeded
 }));
@@ -72,12 +67,7 @@ router.get('/:id', authenticateToken, ash(async(req, res) => {
     return res.status(404).json({ error: 'Student not found' });
   }
   
-  // Admins can access any student
-  if (req.user.isAdmin) {
-    return res.status(200).json(student);
-  }
-  
-  // Regular users can only access students from campuses in their user group
+  // All users (including admins) can only access students from campuses in their user group
   if (!req.user.userGroupId || !student.campusId) {
     return res.status(403).json({ error: 'Access denied' });
   }

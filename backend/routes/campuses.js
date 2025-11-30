@@ -18,25 +18,20 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 router.get('/', authenticateToken, ash(async(req, res) => {
   let campuses;
   
-  // Admins can see all campuses
-  if (req.user.isAdmin) {
-    campuses = await Campus.findAll({include: [Student]});
-  } else {
-    // Regular users only see campuses assigned to their user group
-    if (!req.user.userGroupId) {
-      return res.status(200).json([]);  // No user group, no campuses
-    }
-    
-    const userGroup = await UserGroup.findByPk(req.user.userGroupId, {
-      include: [{ model: Campus, include: [Student] }]
-    });
-    
-    if (!userGroup) {
-      return res.status(200).json([]);
-    }
-    
-    campuses = userGroup.campuses || [];
+  // All users (including admins) only see campuses assigned to their user group
+  if (!req.user.userGroupId) {
+    return res.status(200).json([]);  // No user group, no campuses
   }
+  
+  const userGroup = await UserGroup.findByPk(req.user.userGroupId, {
+    include: [{ model: Campus, include: [Student] }]
+  });
+  
+  if (!userGroup) {
+    return res.status(200).json([]);
+  }
+  
+  campuses = userGroup.campuses || [];
   
   res.status(200).json(campuses);  // Status code 200 OK - request succeeded
 }));
@@ -52,12 +47,7 @@ router.get('/:id', authenticateToken, ash(async(req, res) => {
     return res.status(404).json({ error: 'Campus not found' });
   }
   
-  // Admins can access any campus
-  if (req.user.isAdmin) {
-    return res.status(200).json(campus);
-  }
-  
-  // Regular users can only access campuses in their user group
+  // All users (including admins) can only access campuses in their user group
   if (!req.user.userGroupId) {
     return res.status(403).json({ error: 'Access denied' });
   }
