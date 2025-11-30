@@ -230,3 +230,44 @@ export const fetchCurrentUserThunk = () => async dispatch => {
     return null;
   }
 };
+
+// THUNK CREATOR: Register Association
+export const registerAssociationThunk = (formData) => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/register-association', formData);
+    const { token, user } = res.data;
+    
+    // Store token and user in localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    // Dispatch login action
+    dispatch(ac.login(user, token));
+    return { success: true, user, token };
+  } catch(err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Registration failed' };
+  }
+};
+
+// THUNK CREATOR: Assign user to group
+export const assignUserToGroupThunk = (usernameOrEmail, groupId) => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/assign-user-to-group', { usernameOrEmail, groupId });
+    return { success: true, user: res.data.user };
+  } catch(err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Assignment failed' };
+  }
+};
+
+// THUNK CREATOR: Assign user to association
+export const assignUserToAssociationThunk = (usernameOrEmail, associationId) => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/assign-association', { usernameOrEmail, associationId });
+    return { success: true, user: res.data.user };
+  } catch(err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Assignment failed' };
+  }
+};

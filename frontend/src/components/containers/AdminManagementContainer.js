@@ -12,6 +12,7 @@ import {
   fetchAllUsersThunk,
   fetchAllUserGroupsThunk,
   fetchAllCampusesAdminThunk,
+  fetchAllAssociationsThunk,
   createUserGroupThunk,
   updateUserGroupThunk,
   deleteUserGroupThunk,
@@ -19,6 +20,7 @@ import {
   deleteUserThunk,
   registerUserThunk
 } from '../../store/thunks/admin';
+import { assignUserToGroupThunk, assignUserToAssociationThunk } from '../../store/thunks';
 
 class AdminManagementContainer extends Component {
   constructor(props) {
@@ -29,7 +31,8 @@ class AdminManagementContainer extends Component {
       success: null,
       users: [],
       userGroups: [],
-      campuses: []
+      campuses: [],
+      associations: []
     };
   }
 
@@ -38,10 +41,11 @@ class AdminManagementContainer extends Component {
   }
 
   loadData = async () => {
-    const [usersResult, userGroupsResult, campusesResult] = await Promise.all([
+    const [usersResult, userGroupsResult, campusesResult, associationsResult] = await Promise.all([
       this.props.fetchAllUsers(),
       this.props.fetchAllUserGroups(),
-      this.props.fetchAllCampuses()
+      this.props.fetchAllCampuses(),
+      this.props.fetchAllAssociations()
     ]);
     
     if (usersResult.success) {
@@ -52,6 +56,9 @@ class AdminManagementContainer extends Component {
     }
     if (campusesResult.success) {
       this.setState({ campuses: campusesResult.campuses });
+    }
+    if (associationsResult.success) {
+      this.setState({ associations: associationsResult.associations });
     }
   };
 
@@ -153,7 +160,40 @@ class AdminManagementContainer extends Component {
     }
   };
 
+  handleAssignUserToGroup = async (usernameOrEmail, groupId) => {
+    this.setState({ error: null, success: null });
+    const result = await this.props.assignUserToGroup(usernameOrEmail, groupId);
+    if (result.success) {
+      this.setState({ success: 'User assigned to group successfully' });
+      const usersResult = await this.props.fetchAllUsers();
+      if (usersResult.success) {
+        this.setState({ users: usersResult.users });
+      }
+    } else {
+      this.setState({ error: result.error });
+    }
+  };
+
+  handleAssignUserToAssociation = async (usernameOrEmail, associationId) => {
+    this.setState({ error: null, success: null });
+    const result = await this.props.assignUserToAssociation(usernameOrEmail, associationId);
+    if (result.success) {
+      this.setState({ success: 'User assigned to association successfully' });
+      const usersResult = await this.props.fetchAllUsers();
+      if (usersResult.success) {
+        this.setState({ users: usersResult.users });
+      }
+    } else {
+      this.setState({ error: result.error });
+    }
+  };
+
   render() {
+    // Redirect if not association admin or group admin
+    if (!this.props.user || (!this.props.user.isAssociationAdmin && !this.props.user.isGroupAdmin)) {
+      return <Redirect to="/" />;
+    }
+
     return (
       <div>
         <Header />
@@ -161,6 +201,7 @@ class AdminManagementContainer extends Component {
           users={this.state.users}
           userGroups={this.state.userGroups}
           campuses={this.state.campuses}
+          associations={this.state.associations}
           selectedTab={this.state.selectedTab}
           handleTabChange={this.handleTabChange}
           handleCreateUser={this.handleCreateUser}
@@ -169,6 +210,8 @@ class AdminManagementContainer extends Component {
           handleCreateUserGroup={this.handleCreateUserGroup}
           handleEditUserGroup={this.handleEditUserGroup}
           handleDeleteUserGroup={this.handleDeleteUserGroup}
+          handleAssignUserToGroup={this.handleAssignUserToGroup}
+          handleAssignUserToAssociation={this.handleAssignUserToAssociation}
           error={this.state.error}
           success={this.state.success}
         />
@@ -188,12 +231,15 @@ const mapDispatch = (dispatch) => {
     fetchAllUsers: () => dispatch(fetchAllUsersThunk()),
     fetchAllUserGroups: () => dispatch(fetchAllUserGroupsThunk()),
     fetchAllCampuses: () => dispatch(fetchAllCampusesAdminThunk()),
+    fetchAllAssociations: () => dispatch(fetchAllAssociationsThunk()),
     createUserGroup: (data) => dispatch(createUserGroupThunk(data)),
     updateUserGroup: (id, data) => dispatch(updateUserGroupThunk(id, data)),
     deleteUserGroup: (id) => dispatch(deleteUserGroupThunk(id)),
     updateUser: (id, data) => dispatch(updateUserThunk(id, data)),
     deleteUser: (id) => dispatch(deleteUserThunk(id)),
     registerUser: (data) => dispatch(registerUserThunk(data)),
+    assignUserToGroup: (usernameOrEmail, groupId) => dispatch(assignUserToGroupThunk(usernameOrEmail, groupId)),
+    assignUserToAssociation: (usernameOrEmail, associationId) => dispatch(assignUserToAssociationThunk(usernameOrEmail, associationId)),
   };
 };
 

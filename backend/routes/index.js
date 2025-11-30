@@ -13,10 +13,12 @@ const studentsRouter = require('./students');  // Import sub-router functions in
 const campusesRouter = require('./campuses');  // Import sub-router functions in campuses.js file
 const authRouter = require('./auth');  // Import authentication router
 const adminRouter = require('./admin');  // Import admin router
+const associationsRouter = require('./associations');  // Import associations router
 
 // Set up sub-route's top-level route and attach all sub-routes to it
 router.use('/auth', authRouter);  // Authentication routes: "/api/auth/login", "/api/auth/register", etc.
 router.use('/admin', adminRouter);  // Admin routes: "/api/admin/users", "/api/admin/user-groups", etc.
+router.use('/associations', associationsRouter);  // Association routes: "/api/associations", etc.
 router.use('/students', studentsRouter);  // Updated URL paths: "/students/" and "/students/:id"
 router.use('/campuses', campusesRouter);  // Updated URL paths: "/campuses/" and "/campuses/:id"
 

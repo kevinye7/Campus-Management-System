@@ -36,6 +36,8 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -76,6 +78,7 @@ const AdminManagementView = (props) => {
     users,
     userGroups,
     campuses,
+    associations,
     selectedTab,
     handleTabChange,
     handleCreateUser,
@@ -84,6 +87,8 @@ const AdminManagementView = (props) => {
     handleCreateUserGroup,
     handleEditUserGroup,
     handleDeleteUserGroup,
+    handleAssignUserToGroup,
+    handleAssignUserToAssociation,
     error,
     success
   } = props;
@@ -91,8 +96,15 @@ const AdminManagementView = (props) => {
   const classes = useStyles();
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [userGroupDialogOpen, setUserGroupDialogOpen] = useState(false);
+  const [assignUserDialogOpen, setAssignUserDialogOpen] = useState(false);
+  const [assignAssociationDialogOpen, setAssignAssociationDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [editingUserGroup, setEditingUserGroup] = useState(null);
+  const [assignFormData, setAssignFormData] = useState({
+    usernameOrEmail: '',
+    groupId: '',
+    associationId: ''
+  });
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -100,7 +112,8 @@ const AdminManagementView = (props) => {
     firstName: '',
     lastName: '',
     userGroupId: '',
-    isAdmin: false
+    isAssociationAdmin: false,
+    isGroupAdmin: false
   });
   const [userGroupFormData, setUserGroupFormData] = useState({
     name: '',
@@ -118,7 +131,8 @@ const AdminManagementView = (props) => {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         userGroupId: user.userGroupId || '',
-        isAdmin: user.isAdmin || false
+        isAssociationAdmin: user.isAssociationAdmin || false,
+        isGroupAdmin: user.isGroupAdmin || false
       });
     } else {
       setEditingUser(null);
@@ -129,7 +143,8 @@ const AdminManagementView = (props) => {
         firstName: '',
         lastName: '',
         userGroupId: '',
-        isAdmin: false
+        isAssociationAdmin: false,
+        isGroupAdmin: false
       });
     }
     setUserDialogOpen(true);
@@ -216,6 +231,24 @@ const AdminManagementView = (props) => {
             >
               Add User
             </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<PersonAddIcon />}
+              onClick={() => setAssignUserDialogOpen(true)}
+            >
+              Assign User to Group
+            </Button>
+            {associations && associations.length > 0 && (
+              <Button
+                variant="outlined"
+                color="secondary"
+                startIcon={<GroupAddIcon />}
+                onClick={() => setAssignAssociationDialogOpen(true)}
+              >
+                Assign User to Association
+              </Button>
+            )}
           </Box>
 
           <TableContainer className={classes.tableContainer}>
@@ -226,7 +259,7 @@ const AdminManagementView = (props) => {
                   <TableCell>Email</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>User Group</TableCell>
-                  <TableCell>Admin</TableCell>
+                  <TableCell>Role</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -237,7 +270,11 @@ const AdminManagementView = (props) => {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.firstName} {user.lastName}</TableCell>
                     <TableCell>{user.userGroup ? user.userGroup.name : 'None'}</TableCell>
-                    <TableCell>{user.isAdmin ? 'Yes' : 'No'}</TableCell>
+                    <TableCell>
+                      {user.isAssociationAdmin && 'Association Admin'}
+                      {!user.isAssociationAdmin && user.isGroupAdmin && 'Group Admin'}
+                      {!user.isAssociationAdmin && !user.isGroupAdmin && 'User'}
+                    </TableCell>
                     <TableCell>
                       <IconButton
                         size="small"
@@ -379,11 +416,20 @@ const AdminManagementView = (props) => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={formData.isAdmin}
-                  onChange={(e) => setFormData({ ...formData, isAdmin: e.target.checked })}
+                  checked={formData.isAssociationAdmin}
+                  onChange={(e) => setFormData({ ...formData, isAssociationAdmin: e.target.checked })}
                 />
               }
-              label="Admin"
+              label="Association Admin"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.isGroupAdmin}
+                  onChange={(e) => setFormData({ ...formData, isGroupAdmin: e.target.checked })}
+                />
+              }
+              label="Group Admin"
             />
           </Box>
         </DialogContent>
@@ -443,6 +489,108 @@ const AdminManagementView = (props) => {
           <Button onClick={handleCloseUserGroupDialog}>Cancel</Button>
           <Button onClick={handleUserGroupSubmit} variant="contained" color="primary">
             {editingUserGroup ? 'Update' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Assign User to Group Dialog */}
+      <Dialog open={assignUserDialogOpen} onClose={() => setAssignUserDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Assign User to Group</DialogTitle>
+        <DialogContent>
+          <Box className={classes.dialogContent}>
+            <TextField
+              fullWidth
+              label="Username or Email"
+              value={assignFormData.usernameOrEmail}
+              onChange={(e) => setAssignFormData({ ...assignFormData, usernameOrEmail: e.target.value })}
+              required
+            />
+            <FormControl>
+              <InputLabel>User Group</InputLabel>
+              <Select
+                value={assignFormData.groupId}
+                onChange={(e) => setAssignFormData({ ...assignFormData, groupId: e.target.value })}
+                label="User Group"
+              >
+                <MenuItem value="">Select Group</MenuItem>
+                {userGroups && userGroups.map((group) => (
+                  <MenuItem key={group.id} value={group.id}>
+                    {group.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setAssignUserDialogOpen(false);
+            setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
+          }}>Cancel</Button>
+          <Button 
+            onClick={() => {
+              if (handleAssignUserToGroup) {
+                handleAssignUserToGroup(assignFormData.usernameOrEmail, assignFormData.groupId);
+              }
+              setAssignUserDialogOpen(false);
+              setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
+            }} 
+            variant="contained" 
+            color="primary"
+            disabled={!assignFormData.usernameOrEmail || !assignFormData.groupId}
+          >
+            Assign
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Assign User to Association Dialog */}
+      <Dialog open={assignAssociationDialogOpen} onClose={() => setAssignAssociationDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Assign User to Association</DialogTitle>
+        <DialogContent>
+          <Box className={classes.dialogContent}>
+            <TextField
+              fullWidth
+              label="Username or Email"
+              value={assignFormData.usernameOrEmail}
+              onChange={(e) => setAssignFormData({ ...assignFormData, usernameOrEmail: e.target.value })}
+              required
+            />
+            <FormControl>
+              <InputLabel>Association</InputLabel>
+              <Select
+                value={assignFormData.associationId}
+                onChange={(e) => setAssignFormData({ ...assignFormData, associationId: e.target.value })}
+                label="Association"
+              >
+                <MenuItem value="">Select Association</MenuItem>
+                {associations && associations.map((association) => (
+                  <MenuItem key={association.id} value={association.id}>
+                    {association.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setAssignAssociationDialogOpen(false);
+            setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
+          }}>Cancel</Button>
+          <Button 
+            onClick={() => {
+              if (handleAssignUserToAssociation) {
+                handleAssignUserToAssociation(assignFormData.usernameOrEmail, assignFormData.associationId);
+              }
+              setAssignAssociationDialogOpen(false);
+              setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
+            }} 
+            variant="contained" 
+            color="primary"
+            disabled={!assignFormData.usernameOrEmail || !assignFormData.associationId}
+          >
+            Assign
           </Button>
         </DialogActions>
       </Dialog>

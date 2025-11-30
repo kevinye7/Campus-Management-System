@@ -104,3 +104,14 @@ export const registerUserThunk = (userData) => async (dispatch) => {
   }
 };
 
+// GET ALL ASSOCIATIONS
+export const fetchAllAssociationsThunk = () => async (dispatch) => {
+  try {
+    const res = await axios.get('/api/associations');
+    return { success: true, associations: res.data };
+  } catch (err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Failed to fetch associations' };
+  }
+};
+

@@ -1,13 +1,13 @@
 /*==================================================
-/database/models/UserGroup.js
+/database/models/Association.js
 
-It defines the user group model for the database.
+It defines the association model for the database.
 ==================================================*/
 const Sequelize = require('sequelize');  // Import Sequelize
 const db = require('../db');  // Import Sequelize database instance called "db"
 
-// Define the user group model
-const UserGroup = db.define("userGroup", {
+// Define the association model
+const Association = db.define("association", {
   name: {
     type: Sequelize.STRING,
     allowNull: false,
@@ -15,17 +15,9 @@ const UserGroup = db.define("userGroup", {
   },
   description: {
     type: Sequelize.TEXT,
-  },
-  parentGroupId: {
-    type: Sequelize.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'userGroups',
-      key: 'id'
-    }
   }
 });
 
-// Export the user group model
-module.exports = UserGroup;
+// Export the association model
+module.exports = Association;
 

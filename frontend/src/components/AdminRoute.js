@@ -7,7 +7,7 @@ import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-const AdminRoute = ({ component: Component, isAuthenticated, isAdmin, ...rest }) => {
+const AdminRoute = ({ component: Component, isAuthenticated, isAssociationAdmin, isGroupAdmin, ...rest }) => {
   return (
     <Route
       {...rest}
@@ -15,7 +15,7 @@ const AdminRoute = ({ component: Component, isAuthenticated, isAdmin, ...rest })
         if (!isAuthenticated) {
           return <Redirect to="/login" />;
         }
-        if (!isAdmin) {
+        if (!isAssociationAdmin && !isGroupAdmin) {
           return <Redirect to="/" />;
         }
         return <Component {...props} />;
@@ -27,7 +27,8 @@ const AdminRoute = ({ component: Component, isAuthenticated, isAdmin, ...rest })
 const mapState = (state) => {
   return {
     isAuthenticated: state.auth?.isAuthenticated || false,
-    isAdmin: state.auth?.user?.isAdmin || false,
+    isAssociationAdmin: state.auth?.user?.isAssociationAdmin || false,
+    isGroupAdmin: state.auth?.user?.isGroupAdmin || false,
   };
 };
 

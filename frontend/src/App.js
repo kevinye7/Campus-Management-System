@@ -17,6 +17,7 @@ import {
   EditCampusContainer
 } from './components/containers';
 import LoginContainer from './components/containers/LoginContainer';
+import RegisterAssociationContainer from './components/containers/RegisterAssociationContainer';
 import AdminManagementContainer from './components/containers/AdminManagementContainer';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
@@ -61,6 +62,7 @@ const App = () => {
     <div className="App">
       <Switch>
         <Route exact path="/login" component={LoginContainer} />
+        <Route exact path="/register" component={RegisterAssociationContainer} />
         <Route exact path="/">
           {isAuthenticated ? <HomePageContainer /> : <Redirect to="/login" />}
         </Route>
