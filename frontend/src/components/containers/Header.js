@@ -5,11 +5,11 @@ It contains the Header component to be displayed on every page.
 The header contains navigation links to every other page.
 ================================================== */
 // Import "material" library for building UI with React components
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import { makeStyles } from '@material-ui/core/styles';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import { makeStyles } from '@mui/styles';
 
 import { Link } from 'react-router-dom';
 
