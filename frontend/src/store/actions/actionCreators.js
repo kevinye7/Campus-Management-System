@@ -13,6 +13,20 @@ export const fetchAllCampuses = (campuses) => {
   };
 };
 
+export const deleteCampus = (campusId) => {
+  return {
+    type: at.DELETE_CAMPUS,
+    payload: campusId,
+export const editCampus = (campus) => {
+  return {
+    type: at.EDIT_CAMPUS,
+export const addCampus = (campus) => {
+  return {
+    type: at.ADD_CAMPUS,
+    payload: campus,
+  };
+};
+
 //Single Campus
 export const fetchCampus = (campus) => {
   return {
