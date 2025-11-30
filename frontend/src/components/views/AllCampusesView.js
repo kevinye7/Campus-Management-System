@@ -21,13 +21,26 @@ const AllCampusesView = (props) => {
       </div>
     );
   if (!allCampuses.length) {
-    return <div>There are no campuses.</div>;
+    return (
+      <div>
+        <h1>All Campuses</h1>
+        <p>There are no campuses.</p>
+        <Link to={`/newcampus`}>
+          <button>Add New Campus</button>
+        </Link>
+        <br/><br/>
+      </div>
+    );
   }
 
   // If there is at least one campus, render All Campuses view 
   return (
     <div>
       <h1>All Campuses</h1>
+      <Link to={`/newcampus`}>
+        <button>Add New Campus</button>
+      </Link>
+      <br/><br/>
 
       {allCampuses.map((campus) => (
         <div key={campus.id}>
@@ -44,11 +57,6 @@ const AllCampusesView = (props) => {
           <hr/>
         </div>
       ))}
-      <br/>
-      <Link to={`/newcampus`}>
-        <button>Add New Campus</button>
-      </Link>
-      <br/><br/>
     </div>
   );
 };
