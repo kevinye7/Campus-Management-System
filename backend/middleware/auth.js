@@ -24,8 +24,12 @@ const authenticateToken = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     
     // Get user from database
+    const { UserGroup, Association } = require('../database/models');
     const user = await User.findByPk(decoded.userId, {
-      include: [{ model: require('../database/models').UserGroup }]
+      include: [
+        { model: UserGroup },
+        { model: Association }
+      ]
     });
 
     if (!user) {
@@ -46,13 +50,24 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Middleware to check if user is admin
-const requireAdmin = (req, res, next) => {
-  if (!req.user || !req.user.isAdmin) {
-    return res.status(403).json({ error: 'Admin access required' });
+// Middleware to check if user is association admin
+const requireAssociationAdmin = (req, res, next) => {
+  if (!req.user || !req.user.isAssociationAdmin) {
+    return res.status(403).json({ error: 'Association admin access required' });
   }
   next();
 };
+
+// Middleware to check if user is group admin or association admin
+const requireGroupAdmin = (req, res, next) => {
+  if (!req.user || (!req.user.isGroupAdmin && !req.user.isAssociationAdmin)) {
+    return res.status(403).json({ error: 'Group admin or association admin access required' });
+  }
+  next();
+};
+
+// Legacy support - keep requireAdmin for backward compatibility
+const requireAdmin = requireAssociationAdmin;
 
 // Helper function to generate JWT token
 const generateToken = (userId) => {
@@ -62,6 +77,8 @@ const generateToken = (userId) => {
 module.exports = {
   authenticateToken,
   requireAdmin,
+  requireAssociationAdmin,
+  requireGroupAdmin,
   generateToken,
   JWT_SECRET
 };

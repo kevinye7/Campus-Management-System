@@ -3,42 +3,54 @@
 
 It seeds the database with several initial students and campuses.
 ==================================================*/
-const { Campus, Student, User, UserGroup } = require('../models');  // Import database models
+const { Campus, Student, User, UserGroup, Association } = require('../models');  // Import database models
 
 // Seed database
 const seedDB = async () => {
-	// Create user groups
-	const adminGroup = await UserGroup.create({
-		name: "Administrators",
-		description: "Full system access"
-	});
-	const nycGroup = await UserGroup.create({
-		name: "NYC Campuses",
-		description: "Access to NYC area campuses"
-	});
-	const queensGroup = await UserGroup.create({
-		name: "Queens Campus",
-		description: "Access to Queens College only"
+	// Create association
+	const mainAssociation = await Association.create({
+		name: "CUNY System",
+		description: "City University of New York system"
 	});
 
-	// Create campuses
+	// Create campuses (belong to association)
 	const dummy_campus = await Campus.create({
 		name: "Hunter College",
 		address: "695 Park Ave, New York, NY 10065",
 		description: "This is a school in New York, New York.",
-		imageUrl: "https://s29068.pcdn.co/wp-content/uploads/hunter-campus-768x432.jpg.optimal.jpg"
+		imageUrl: "https://s29068.pcdn.co/wp-content/uploads/hunter-campus-768x432.jpg.optimal.jpg",
+		associationId: mainAssociation.id
 	});
 	const dummy_campus2 = await Campus.create({
 		name: "Queens College",
 		address: "65-30 Kissena Blvd, Queens, NY 11367",
 		description: "This is a school in Queens, New York.",
-		imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/df/Facade_of_The_Queen%27s_College%2C_Oxford%2C_2020.jpg"
+		imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/df/Facade_of_The_Queen%27s_College%2C_Oxford%2C_2020.jpg",
+		associationId: mainAssociation.id
 	});
 	const dummy_campus3 = await Campus.create({
 		name: "Brooklyn College",
 		address: "2900 Bedford Ave, Brooklyn, NY 11210",
 		description: "This is a school in Brooklyn, New York.",
-		imageUrl: "https://www.cuny.edu/wp-content/uploads/sites/4/2015/01/09_20_2006_brc_quad_06.jpg"
+		imageUrl: "https://www.cuny.edu/wp-content/uploads/sites/4/2015/01/09_20_2006_brc_quad_06.jpg",
+		associationId: mainAssociation.id
+	});
+
+	// Create user groups (belong to association)
+	const adminGroup = await UserGroup.create({
+		name: "Administrators",
+		description: "Full system access",
+		associationId: mainAssociation.id
+	});
+	const nycGroup = await UserGroup.create({
+		name: "NYC Campuses",
+		description: "Access to NYC area campuses",
+		associationId: mainAssociation.id
+	});
+	const queensGroup = await UserGroup.create({
+		name: "Queens Campus",
+		description: "Access to Queens College only",
+		associationId: mainAssociation.id
 	});
 
 	// Assign campuses to user groups
@@ -51,14 +63,16 @@ const seedDB = async () => {
 	await adminGroup.addCampus(dummy_campus2);
 	await adminGroup.addCampus(dummy_campus3);
 	
-	// Create users
+	// Create users (belong to association and group)
 	const adminUser = await User.create({
 		username: "admin",
 		email: "admin@campus.edu",
 		password: "admin123",  // Will be hashed by beforeCreate hook
 		firstName: "Admin",
 		lastName: "User",
-		isAdmin: true,
+		isAssociationAdmin: true,
+		isGroupAdmin: false,
+		associationId: mainAssociation.id,
 		userGroupId: adminGroup.id
 	});
 	const regularUser = await User.create({
@@ -67,7 +81,9 @@ const seedDB = async () => {
 		password: "user123",  // Will be hashed by beforeCreate hook
 		firstName: "John",
 		lastName: "Doe",
-		isAdmin: false,
+		isAssociationAdmin: false,
+		isGroupAdmin: false,
+		associationId: mainAssociation.id,
 		userGroupId: nycGroup.id
 	});
 	const queensUser = await User.create({
@@ -76,7 +92,9 @@ const seedDB = async () => {
 		password: "queens123",  // Will be hashed by beforeCreate hook
 		firstName: "Jane",
 		lastName: "Smith",
-		isAdmin: false,
+		isAssociationAdmin: false,
+		isGroupAdmin: true,
+		associationId: mainAssociation.id,
 		userGroupId: queensGroup.id
 	});
 	

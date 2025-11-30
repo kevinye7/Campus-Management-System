@@ -1,21 +1,26 @@
 /*==================================================
-LoginContainer.js
+RegisterAssociationContainer.js
 
-The Container component for user login.
+Container for public association registration.
 ================================================== */
 import Header from './Header';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
-import LoginView from '../views/LoginView';
-import { loginThunk } from '../../store/thunks';
+import { Redirect, withRouter } from 'react-router-dom';
+import RegisterAssociationView from '../views/RegisterAssociationView';
+import { registerAssociationThunk } from '../../store/thunks';
 
-class LoginContainer extends Component {
+class RegisterAssociationContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      associationName: '',
+      associationDescription: '',
       username: '',
+      email: '',
       password: '',
+      firstName: '',
+      lastName: '',
       error: null,
       loading: false
     };
@@ -32,14 +37,14 @@ class LoginContainer extends Component {
   handleSubmit = async (formData) => {
     this.setState({ loading: true, error: null });
 
-    const result = await this.props.login(formData.username, formData.password);
+    const result = await this.props.registerAssociation(formData);
     
     if (result.success) {
-      // Redirect handled by checking isAuthenticated in render
-      this.setState({ loading: false });
+      // Redirect to home
+      this.props.history.push('/');
     } else {
       this.setState({ 
-        error: result.error || 'Login failed',
+        error: result.error || 'Registration failed',
         loading: false 
       });
     }
@@ -54,11 +59,11 @@ class LoginContainer extends Component {
     return (
       <div>
         <Header />
-        <LoginView 
+        <RegisterAssociationView 
           handleChange={this.handleChange}
           handleSubmit={this.handleSubmit}
           error={this.state.error}
-          formData={this.state}
+          loading={this.state.loading}
         />
       </div>
     );
@@ -73,9 +78,9 @@ const mapState = (state) => {
 
 const mapDispatch = (dispatch) => {
   return {
-    login: (username, password) => dispatch(loginThunk(username, password)),
+    registerAssociation: (formData) => dispatch(registerAssociationThunk(formData)),
   };
 };
 
-export default connect(mapState, mapDispatch)(LoginContainer);
+export default withRouter(connect(mapState, mapDispatch)(RegisterAssociationContainer));
 

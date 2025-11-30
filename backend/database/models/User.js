@@ -34,7 +34,11 @@ const User = db.define("user", {
     type: Sequelize.STRING,
     allowNull: false
   },
-  isAdmin: {
+  isAssociationAdmin: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false
+  },
+  isGroupAdmin: {
     type: Sequelize.BOOLEAN,
     defaultValue: false
   }

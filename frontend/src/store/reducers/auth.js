@@ -7,16 +7,35 @@ import * as at from "../actions/actionTypes";
 
 // Initialize state from localStorage if available
 const getInitialState = () => {
-  const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : null;
-  
-  return {
-    user,
-    token,
-    isAuthenticated: !!(token && user),
-    error: null
-  };
+  try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    let user = null;
+    
+    if (userStr) {
+      try {
+        user = JSON.parse(userStr);
+      } catch (e) {
+        console.error('Error parsing user from localStorage:', e);
+        localStorage.removeItem('user');
+      }
+    }
+    
+    return {
+      user,
+      token,
+      isAuthenticated: !!(token && user),
+      error: null
+    };
+  } catch (error) {
+    console.error('Error initializing auth state:', error);
+    return {
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      error: null
+    };
+  }
 };
 
 // REDUCER:

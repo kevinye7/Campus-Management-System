@@ -63,6 +63,13 @@ const Header = ({ user, isAuthenticated, logout }) => {
             Campus Management System
           </Typography>
 
+          {!isAuthenticated && (
+            <Link className={classes.links} to={'/register'} >
+              <Button variant="outlined" color="primary" style={{marginRight: '10px'}}>
+                Create Association
+              </Button>
+            </Link>
+          )}
           {isAuthenticated && (
             <>
               <Link className={classes.links} to={'/'} >
@@ -83,11 +90,21 @@ const Header = ({ user, isAuthenticated, logout }) => {
                 </Button>
               </Link>
 
+              {user && (user.isAssociationAdmin || user.isGroupAdmin) && (
+                <Link className={classes.links} to={'/admin'} >
+                  <Button variant="contained" color="secondary" style={{marginRight: '10px'}}>
+                    Admin
+                  </Button>
+                </Link>
+              )}
+
               <Box style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {user && (
                   <Typography variant="body2" style={{ marginRight: '10px' }}>
                     {user.firstName} {user.lastName}
-                    {user.isAdmin && ' (Admin)'}
+                    {user.isAssociationAdmin && ' (Assoc. Admin)'}
+                    {!user.isAssociationAdmin && user.isGroupAdmin && ' (Group Admin)'}
+                    {user.association && ` - ${user.association.name}`}
                   </Typography>
                 )}
                 <Button variant="outlined" color="secondary" onClick={handleLogout}>
@@ -104,8 +121,8 @@ const Header = ({ user, isAuthenticated, logout }) => {
 
 const mapState = (state) => {
   return {
-    user: state.auth.user,
-    isAuthenticated: state.auth.isAuthenticated,
+    user: state.auth?.user || null,
+    isAuthenticated: state.auth?.isAuthenticated || false,
   };
 };
 

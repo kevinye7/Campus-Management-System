@@ -4,35 +4,42 @@
 It contains all Thunk Creators and Thunks.
 ================================================== */
 import * as ac from './actions/actionCreators';  // Import Action Creators ("ac" keyword Action Creator)
-const axios = require('axios');
+import axios from 'axios';
 
 // Set up axios interceptor to include JWT token in requests
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+if (axios && axios.interceptors) {
+  axios.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('token');
+      if (token && config) {
+        if (!config.headers) {
+          config.headers = {};
+        }
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  );
 
-// Set up axios interceptor to handle 401 errors (unauthorized)
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear token and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+  // Set up axios interceptor to handle 401 errors (unauthorized)
+  axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error && error.response && error.response.status === 401) {
+        // Clear token and redirect to login
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
-);
+  );
+}
 
 //All Campuses
 // THUNK CREATOR:
@@ -221,5 +228,46 @@ export const fetchCurrentUserThunk = () => async dispatch => {
     // If token is invalid, logout
     dispatch(ac.logout());
     return null;
+  }
+};
+
+// THUNK CREATOR: Register Association
+export const registerAssociationThunk = (formData) => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/register-association', formData);
+    const { token, user } = res.data;
+    
+    // Store token and user in localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    // Dispatch login action
+    dispatch(ac.login(user, token));
+    return { success: true, user, token };
+  } catch(err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Registration failed' };
+  }
+};
+
+// THUNK CREATOR: Assign user to group
+export const assignUserToGroupThunk = (usernameOrEmail, groupId) => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/assign-user-to-group', { usernameOrEmail, groupId });
+    return { success: true, user: res.data.user };
+  } catch(err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Assignment failed' };
+  }
+};
+
+// THUNK CREATOR: Assign user to association
+export const assignUserToAssociationThunk = (usernameOrEmail, associationId) => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/assign-association', { usernameOrEmail, associationId });
+    return { success: true, user: res.data.user };
+  } catch(err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Assignment failed' };
   }
 };
