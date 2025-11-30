@@ -10,8 +10,10 @@
   "author": "Your Name Here",
   "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.5.1",
     "pgtools": "^0.3.0",
     "sequelize": "^6.3.5"

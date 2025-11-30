@@ -1,7 +1,9 @@
 import "./App.css";
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 //Router
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 //Components
 import {
   HomePageContainer,
@@ -14,24 +16,38 @@ import {
   EditStudentContainer,
   EditCampusContainer
 } from './components/containers';
-
-// if you create separate components for adding/editing 
-// a student or campus, make sure you add routes to those
-// components here
+import LoginContainer from './components/containers/LoginContainer';
+import ProtectedRoute from './components/ProtectedRoute';
+import { fetchCurrentUserThunk } from './store/thunks';
 
 const App = () => {
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+
+  // Check for existing token on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && !isAuthenticated) {
+      dispatch(fetchCurrentUserThunk());
+    }
+  }, [dispatch, isAuthenticated]);
+
   return (
     <div className="App">
       <Switch>
-        <Route exact path="/" component={HomePageContainer} />
-        <Route exact path="/campuses" component={AllCampusesContainer} />
-        <Route exact path="/newcampus" component={NewCampusContainer} />
-        <Route exact path="/campus/:id" component={CampusContainer} />
-        <Route exact path="/campus/:id/edit" component={EditCampusContainer} />
-        <Route exact path="/students" component={AllStudentsContainer} />
-        <Route exact path="/newstudent" component={NewStudentContainer} />
-        <Route exact path="/student/:id" component={StudentContainer} />
-        <Route exact path="/student/:id/edit" component={EditStudentContainer} />
+        <Route exact path="/login" component={LoginContainer} />
+        <ProtectedRoute exact path="/" component={HomePageContainer} />
+        <ProtectedRoute exact path="/campuses" component={AllCampusesContainer} />
+        <ProtectedRoute exact path="/newcampus" component={NewCampusContainer} />
+        <ProtectedRoute exact path="/campus/:id" component={CampusContainer} />
+        <ProtectedRoute exact path="/campus/:id/edit" component={EditCampusContainer} />
+        <ProtectedRoute exact path="/students" component={AllStudentsContainer} />
+        <ProtectedRoute exact path="/newstudent" component={NewStudentContainer} />
+        <ProtectedRoute exact path="/student/:id" component={StudentContainer} />
+        <ProtectedRoute exact path="/student/:id/edit" component={EditStudentContainer} />
+        <Route path="*">
+          <Redirect to="/" />
+        </Route>
       </Switch>        
     </div>
   );

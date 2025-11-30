@@ -6,6 +6,34 @@ It contains all Thunk Creators and Thunks.
 import * as ac from './actions/actionCreators';  // Import Action Creators ("ac" keyword Action Creator)
 const axios = require('axios');
 
+// Set up axios interceptor to include JWT token in requests
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Set up axios interceptor to handle 401 errors (unauthorized)
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 //All Campuses
 // THUNK CREATOR:
 export const fetchAllCampusesThunk = () => async (dispatch) => {  // The THUNK
@@ -141,5 +169,57 @@ export const fetchStudentThunk = id => async dispatch => {  // The THUNK
     dispatch(ac.fetchStudent(res.data));
   } catch(err) {
     console.error(err);
+  }
+};
+
+// Authentication
+// THUNK CREATOR:
+export const loginThunk = (username, password) => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/login', { username, password });
+    const { token, user } = res.data;
+    
+    // Store token and user in localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    // Dispatch login action
+    dispatch(ac.login(user, token));
+    return { success: true };
+  } catch(err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Login failed' };
+  }
+};
+
+// THUNK CREATOR:
+export const registerThunk = (userData) => async dispatch => {
+  try {
+    const res = await axios.post('/api/auth/register', userData);
+    return { success: true, user: res.data.user };
+  } catch(err) {
+    console.error(err);
+    return { success: false, error: err.response?.data?.error || 'Registration failed' };
+  }
+};
+
+// THUNK CREATOR:
+export const logoutThunk = () => async dispatch => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  dispatch(ac.logout());
+};
+
+// THUNK CREATOR:
+export const fetchCurrentUserThunk = () => async dispatch => {
+  try {
+    const res = await axios.get('/api/auth/me');
+    dispatch(ac.setUser(res.data.user));
+    return res.data.user;
+  } catch(err) {
+    console.error(err);
+    // If token is invalid, logout
+    dispatch(ac.logout());
+    return null;
   }
 };

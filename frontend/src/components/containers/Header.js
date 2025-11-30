@@ -9,9 +9,11 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import { makeStyles } from '@mui/styles';
-
-import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { Link, useHistory } from 'react-router-dom';
+import { logoutThunk } from '../../store/thunks';
 
 // Define styling for the header
 const useStyles = makeStyles(theme => ({
@@ -44,8 +46,15 @@ const useStyles = makeStyles(theme => ({
 
 // Header component, displayed on every page
 // Links to every other page
-const Header = () => {
+const Header = ({ user, isAuthenticated, logout }) => {
   const classes = useStyles();
+  const history = useHistory();
+
+  const handleLogout = () => {
+    logout();
+    history.push('/login');
+  };
+
   return (
     <div className={classes.root}>
       <AppBar position="static" elevation={0} className={classes.appBar}>
@@ -54,27 +63,56 @@ const Header = () => {
             Campus Management System
           </Typography>
 
-          <Link className={classes.links} to={'/'} >
-            <Button variant="contained" color="primary" style={{marginRight: '10px'}}>
-              Home
-            </Button>
-          </Link>
+          {isAuthenticated && (
+            <>
+              <Link className={classes.links} to={'/'} >
+                <Button variant="contained" color="primary" style={{marginRight: '10px'}}>
+                  Home
+                </Button>
+              </Link>
 
-          <Link className={classes.links} to={'/campuses'} >
-            <Button variant="contained" color="primary" style={{marginRight: '10px'}}>
-              All Campuses
-            </Button>
-          </Link>
+              <Link className={classes.links} to={'/campuses'} >
+                <Button variant="contained" color="primary" style={{marginRight: '10px'}}>
+                  All Campuses
+                </Button>
+              </Link>
 
-          <Link className={classes.links} to={'/students'} >
-            <Button variant="contained" color="primary">
-              All Students
-            </Button>
-          </Link>
+              <Link className={classes.links} to={'/students'} >
+                <Button variant="contained" color="primary" style={{marginRight: '10px'}}>
+                  All Students
+                </Button>
+              </Link>
+
+              <Box style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {user && (
+                  <Typography variant="body2" style={{ marginRight: '10px' }}>
+                    {user.firstName} {user.lastName}
+                    {user.isAdmin && ' (Admin)'}
+                  </Typography>
+                )}
+                <Button variant="outlined" color="secondary" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </Box>
+            </>
+          )}
         </Toolbar>
       </AppBar>
     </div>
   );    
 }
 
-export default Header;
+const mapState = (state) => {
+  return {
+    user: state.auth.user,
+    isAuthenticated: state.auth.isAuthenticated,
+  };
+};
+
+const mapDispatch = (dispatch) => {
+  return {
+    logout: () => dispatch(logoutThunk()),
+  };
+};
+
+export default connect(mapState, mapDispatch)(Header);
