@@ -17,3 +17,9 @@ export const EDIT_STUDENT = "EDIT_STUDENT";
 
 //Single student
 export const FETCH_STUDENT = "FETCH_STUDENT";
+
+//Authentication
+export const LOGIN = "LOGIN";
+export const LOGOUT = "LOGOUT";
+export const SET_USER = "SET_USER";
+export const CLEAR_AUTH_ERROR = "CLEAR_AUTH_ERROR";

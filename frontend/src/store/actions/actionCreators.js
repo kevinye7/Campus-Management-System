@@ -79,3 +79,30 @@ export const fetchStudent = (student) => {
     payload: student,
   };
 };
+
+//Authentication
+export const login = (user, token) => {
+  return {
+    type: at.LOGIN,
+    payload: { user, token },
+  };
+};
+
+export const logout = () => {
+  return {
+    type: at.LOGOUT,
+  };
+};
+
+export const setUser = (user) => {
+  return {
+    type: at.SET_USER,
+    payload: user,
+  };
+};
+
+export const clearAuthError = () => {
+  return {
+    type: at.CLEAR_AUTH_ERROR,
+  };
+};
