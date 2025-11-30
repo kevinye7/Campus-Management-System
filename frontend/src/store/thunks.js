@@ -4,35 +4,42 @@
 It contains all Thunk Creators and Thunks.
 ================================================== */
 import * as ac from './actions/actionCreators';  // Import Action Creators ("ac" keyword Action Creator)
-const axios = require('axios');
+import axios from 'axios';
 
 // Set up axios interceptor to include JWT token in requests
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+if (axios && axios.interceptors) {
+  axios.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('token');
+      if (token && config) {
+        if (!config.headers) {
+          config.headers = {};
+        }
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  );
 
-// Set up axios interceptor to handle 401 errors (unauthorized)
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear token and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+  // Set up axios interceptor to handle 401 errors (unauthorized)
+  axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error && error.response && error.response.status === 401) {
+        // Clear token and redirect to login
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
-);
+  );
+}
 
 //All Campuses
 // THUNK CREATOR:
