@@ -1,5 +1,5 @@
 import "./App.css";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 //Router
@@ -23,20 +23,40 @@ import { fetchCurrentUserThunk } from './store/thunks';
 const App = () => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check for existing token on mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && !isAuthenticated) {
-      dispatch(fetchCurrentUserThunk());
-    }
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token && !isAuthenticated) {
+        try {
+          await dispatch(fetchCurrentUserThunk());
+        } catch (error) {
+          console.error('Auth check failed:', error);
+        }
+      }
+      setIsLoading(false);
+    };
+    checkAuth();
   }, [dispatch, isAuthenticated]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="App" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="App">
       <Switch>
         <Route exact path="/login" component={LoginContainer} />
-        <ProtectedRoute exact path="/" component={HomePageContainer} />
+        <Route exact path="/">
+          {isAuthenticated ? <HomePageContainer /> : <Redirect to="/login" />}
+        </Route>
         <ProtectedRoute exact path="/campuses" component={AllCampusesContainer} />
         <ProtectedRoute exact path="/newcampus" component={NewCampusContainer} />
         <ProtectedRoute exact path="/campus/:id" component={CampusContainer} />
@@ -46,7 +66,7 @@ const App = () => {
         <ProtectedRoute exact path="/student/:id" component={StudentContainer} />
         <ProtectedRoute exact path="/student/:id/edit" component={EditStudentContainer} />
         <Route path="*">
-          <Redirect to="/" />
+          {isAuthenticated ? <Redirect to="/" /> : <Redirect to="/login" />}
         </Route>
       </Switch>        
     </div>

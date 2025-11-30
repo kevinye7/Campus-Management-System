@@ -22,17 +22,17 @@ class LoginContainer extends Component {
   }
 
   handleChange = (event) => {
+    const { name, value } = event.target;
     this.setState({
-      [event.target.name]: event.target.value,
+      [name]: value,
       error: null
     });
   }
 
-  handleSubmit = async (event) => {
-    event.preventDefault();
+  handleSubmit = async (formData) => {
     this.setState({ loading: true, error: null });
 
-    const result = await this.props.login(this.state.username, this.state.password);
+    const result = await this.props.login(formData.username, formData.password);
     
     if (result.success) {
       // Redirect handled by checking isAuthenticated in render
@@ -58,6 +58,7 @@ class LoginContainer extends Component {
           handleChange={this.handleChange}
           handleSubmit={this.handleSubmit}
           error={this.state.error}
+          formData={this.state}
         />
       </div>
     );
