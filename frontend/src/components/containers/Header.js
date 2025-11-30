@@ -104,8 +104,8 @@ const Header = ({ user, isAuthenticated, logout }) => {
 
 const mapState = (state) => {
   return {
-    user: state.auth.user,
-    isAuthenticated: state.auth.isAuthenticated,
+    user: state.auth?.user || null,
+    isAuthenticated: state.auth?.isAuthenticated || false,
   };
 };
 

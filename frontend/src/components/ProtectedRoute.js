@@ -24,7 +24,7 @@ const ProtectedRoute = ({ component: Component, isAuthenticated, ...rest }) => {
 
 const mapState = (state) => {
   return {
-    isAuthenticated: state.auth.isAuthenticated,
+    isAuthenticated: state.auth?.isAuthenticated || false,
   };
 };
 

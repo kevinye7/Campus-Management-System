@@ -22,24 +22,29 @@ import { fetchCurrentUserThunk } from './store/thunks';
 
 const App = () => {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector(state => state.auth?.isAuthenticated || false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing token on mount
+  // Check for existing token on mount (only once)
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token && !isAuthenticated) {
-        try {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
           await dispatch(fetchCurrentUserThunk());
-        } catch (error) {
-          console.error('Auth check failed:', error);
         }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // Clear invalid token
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     checkAuth();
-  }, [dispatch, isAuthenticated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -66,7 +71,7 @@ const App = () => {
         <ProtectedRoute exact path="/student/:id" component={StudentContainer} />
         <ProtectedRoute exact path="/student/:id/edit" component={EditStudentContainer} />
         <Route path="*">
-          {isAuthenticated ? <Redirect to="/" /> : <Redirect to="/login" />}
+          <Redirect to="/login" />
         </Route>
       </Switch>        
     </div>
