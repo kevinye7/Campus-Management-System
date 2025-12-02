@@ -17,20 +17,59 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { makeStyles } from '@mui/styles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   root: {
     padding: '20px',
+    maxWidth: '1400px',
+    margin: '0 auto',
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
+    marginBottom: '30px',
+    flexWrap: 'wrap',
+    gap: '15px',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    },
+  },
+  headerTitle: {
+    color: '#1d1d1f',
+    fontWeight: 600,
+    fontSize: 'clamp(24px, 5vw, 36px)',
+  },
+  addButton: {
+    background: '#1d1d1f !important',
+    color: 'white !important',
+    borderRadius: '10px !important',
+    padding: '10px 20px !important',
+    fontWeight: 500,
+    textTransform: 'none',
+    '&:hover': {
+      background: '#000000 !important',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.2)',
+    },
   },
   studentCard: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderRadius: '16px',
+    border: '1px solid rgba(0, 0, 0, 0.08)',
+    boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.08)',
+    transition: 'all 0.3s ease',
+    overflow: 'hidden',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.12)',
+      border: '1px solid rgba(0, 0, 0, 0.12)',
+    },
   },
   studentImage: {
     width: '80px',
@@ -43,6 +82,20 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     alignItems: 'center',
     flexGrow: 1,
+    padding: '20px !important',
+  },
+  studentName: {
+    color: '#1d1d1f',
+    fontWeight: 500,
+    textDecoration: 'none !important',
+    '&:hover': {
+      color: '#000000',
+    },
+  },
+  emptyText: {
+    color: '#666666',
+    textAlign: 'center',
+    padding: '40px',
   },
 }));
 
@@ -55,12 +108,11 @@ const AllStudentsView = (props) => {
     return (
       <div className={classes.root}>
         <Box className={classes.header}>
-          <Typography variant="h3" component="h1">
+          <Typography variant="h3" component="h1" className={classes.headerTitle}>
             All Students
           </Typography>
           <Button
-            variant="contained"
-            color="primary"
+            className={classes.addButton}
             startIcon={<AddIcon />}
             component={Link}
             to="/newstudent"
@@ -68,7 +120,7 @@ const AllStudentsView = (props) => {
             Add New Student
           </Button>
         </Box>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" className={classes.emptyText}>
           There are no students.
         </Typography>
       </div>
@@ -79,12 +131,11 @@ const AllStudentsView = (props) => {
   return (
     <div className={classes.root}>
       <Box className={classes.header}>
-        <Typography variant="h3" component="h1">
+        <Typography variant="h3" component="h1" className={classes.headerTitle}>
           All Students
         </Typography>
         <Button
-          variant="contained"
-          color="primary"
+          className={classes.addButton}
           startIcon={<AddIcon />}
           component={Link}
           to="/newstudent"
@@ -112,17 +163,17 @@ const AllStudentsView = (props) => {
                       variant="h6" 
                       component={Link} 
                       to={`/student/${student.id}`}
-                      style={{ textDecoration: 'none', color: 'inherit' }}
+                      className={classes.studentName}
                     >
                       {name}
                     </Typography>
                   </Box>
                 </CardContent>
-                <CardActions>
+                <CardActions style={{ padding: '0 20px 20px 20px' }}>
                   <IconButton
-                    color="error"
                     onClick={() => deleteStudent(student.id)}
                     aria-label="delete student"
+                    style={{ color: '#666666' }}
                   >
                     <DeleteIcon />
                   </IconButton>

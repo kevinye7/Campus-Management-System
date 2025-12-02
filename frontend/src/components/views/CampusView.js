@@ -23,21 +23,49 @@ import EditIcon from '@mui/icons-material/Edit';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { makeStyles } from '@mui/styles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   root: {
     padding: '20px',
+    maxWidth: '1400px',
+    margin: '0 auto',
   },
   campusCard: {
     marginBottom: '30px',
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderRadius: '16px',
+    border: '1px solid rgba(0, 0, 0, 0.08)',
+    boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.08)',
+    overflow: 'hidden',
   },
   campusImage: {
     height: '400px',
     objectFit: 'cover',
+    width: '100%',
+  },
+  campusTitle: {
+    color: '#1d1d1f',
+    fontWeight: 600,
+  },
+  campusText: {
+    color: '#666666',
   },
   studentCard: {
     marginBottom: '15px',
     display: 'flex',
     alignItems: 'center',
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderRadius: '12px',
+    border: '1px solid rgba(0, 0, 0, 0.08)',
+    boxShadow: '0 2px 16px 0 rgba(0, 0, 0, 0.06)',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.1)',
+    },
   },
   studentImage: {
     width: '80px',
@@ -46,17 +74,65 @@ const useStyles = makeStyles(() => ({
     objectFit: 'cover',
     marginRight: '15px',
   },
+  studentName: {
+    color: '#1d1d1f',
+    fontWeight: 500,
+    textDecoration: 'none !important',
+    '&:hover': {
+      color: '#000000',
+    },
+  },
+  sectionTitle: {
+    color: '#1d1d1f',
+    fontWeight: 600,
+    marginBottom: '20px',
+    marginTop: '20px',
+  },
   actionButtons: {
     marginTop: '20px',
     marginBottom: '20px',
     display: 'flex',
     gap: '10px',
+    flexWrap: 'wrap',
+  },
+  actionButton: {
+    background: '#1d1d1f !important',
+    color: 'white !important',
+    borderRadius: '10px !important',
+    padding: '10px 20px !important',
+    fontWeight: 500,
+    textTransform: 'none',
+    '&:hover': {
+      background: '#000000 !important',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.2)',
+    },
+  },
+  deleteButton: {
+    background: 'rgba(0, 0, 0, 0.08) !important',
+    color: '#666666 !important',
+    '&:hover': {
+      background: 'rgba(0, 0, 0, 0.12) !important',
+      color: '#1d1d1f !important',
+    },
   },
   addStudentSection: {
     marginTop: '30px',
-    padding: '20px',
-    backgroundColor: '#f5f5f5',
-    borderRadius: '8px',
+    padding: '24px',
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderRadius: '16px',
+    border: '1px solid rgba(0, 0, 0, 0.08)',
+    boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.08)',
+  },
+  addStudentTitle: {
+    color: '#1d1d1f',
+    fontWeight: 600,
+    marginBottom: '20px',
+  },
+  emptyText: {
+    color: '#666666',
   },
 }));
 
@@ -85,23 +161,22 @@ const CampusView = (props) => {
             alt={campus.name}
           />
         )}
-        <CardContent>
-          <Typography variant="h3" component="h1" gutterBottom>
+        <CardContent style={{ padding: '24px' }}>
+          <Typography variant="h3" component="h1" className={classes.campusTitle} gutterBottom>
             {campus.name}
           </Typography>
-          <Typography variant="body1" color="text.secondary" paragraph>
+          <Typography variant="body1" className={classes.campusText} paragraph>
             <strong>Address:</strong> {campus.address}
           </Typography>
           {campus.description && (
-            <Typography variant="body1" paragraph>
+            <Typography variant="body1" className={classes.campusText} paragraph>
               {campus.description}
             </Typography>
           )}
           
           <Box className={classes.actionButtons}>
             <Button
-              variant="contained"
-              color="primary"
+              className={classes.actionButton}
               startIcon={<EditIcon />}
               component={Link}
               to={`/campus/${campus.id}/edit`}
@@ -109,8 +184,7 @@ const CampusView = (props) => {
               Edit Campus
             </Button>
             <Button
-              variant="contained"
-              color="error"
+              className={`${classes.actionButton} ${classes.deleteButton}`}
               startIcon={<DeleteIcon />}
               onClick={() => deleteCampus(campus.id)}
             >
@@ -120,7 +194,7 @@ const CampusView = (props) => {
         </CardContent>
       </Card>
 
-      <Typography variant="h4" component="h2" gutterBottom>
+      <Typography variant="h4" component="h2" className={classes.sectionTitle}>
         Enrolled Students
       </Typography>
 
@@ -131,7 +205,7 @@ const CampusView = (props) => {
             return (
               <Grid item xs={12} sm={6} md={4} key={student.id}>
                 <Card className={classes.studentCard}>
-                  <CardContent style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <CardContent style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '16px' }}>
                     {student.imageUrl && (
                       <img 
                         src={student.imageUrl} 
@@ -144,15 +218,15 @@ const CampusView = (props) => {
                         variant="h6" 
                         component={Link} 
                         to={`/student/${student.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
+                        className={classes.studentName}
                       >
                         {name}
                       </Typography>
                     </Box>
                     <IconButton
-                      color="error"
                       onClick={() => removeStudent(student.id)}
                       aria-label="remove student"
+                      style={{ color: '#666666' }}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -163,23 +237,24 @@ const CampusView = (props) => {
           })}
         </Grid>
       ) : (
-        <Typography variant="body1" color="text.secondary" paragraph>
+        <Typography variant="body1" className={classes.emptyText} paragraph>
           No students enrolled at this campus.
         </Typography>
       )}
 
       {availableStudents && availableStudents.length > 0 && (
         <Box className={classes.addStudentSection}>
-          <Typography variant="h5" component="h3" gutterBottom>
+          <Typography variant="h5" component="h3" className={classes.addStudentTitle}>
             Add Student to Campus
           </Typography>
-          <Box style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <FormControl style={{ minWidth: '300px' }}>
+          <Box style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <FormControl style={{ minWidth: '250px', flex: 1 }}>
               <InputLabel>Select Student</InputLabel>
               <Select
                 value={selectedStudentId}
                 onChange={(e) => setSelectedStudentId(e.target.value)}
                 label="Select Student"
+                style={{ background: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px' }}
               >
                 {availableStudents.map(student => (
                   <MenuItem key={student.id} value={student.id}>
@@ -189,8 +264,7 @@ const CampusView = (props) => {
               </Select>
             </FormControl>
             <Button
-              variant="contained"
-              color="primary"
+              className={classes.actionButton}
               startIcon={<PersonAddIcon />}
               onClick={handleAddStudent}
               disabled={!selectedStudentId}

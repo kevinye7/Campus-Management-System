@@ -6,17 +6,48 @@ passes data (if any) as props to the corresponding View component.
 If needed, it also defines the component's "connect" function.
 ================================================== */
 import Header from './Header';
+import { Component } from 'react';
+import { connect } from 'react-redux';
+import { fetchAllCampusesThunk, fetchAllStudentsThunk } from '../../store/thunks';
 import HomePageView from '../views/HomePageView';
 
-// Render Home page view by the corresponding View component
-const HomePageContainer = () => {
-  return (
-    <div>
-      <Header />
-      <HomePageView />
-    </div>
-    
-  );
+class HomePageContainer extends Component {
+  // Fetch campuses and students data when component mounts
+  componentDidMount() {
+    this.props.fetchAllCampuses();
+    this.props.fetchAllStudents();
+  }
+
+  // Render Home page view by passing data as props to the corresponding View component
+  render() {
+    return (
+      <div>
+        <Header />
+        <HomePageView 
+          campuses={this.props.allCampuses || []}
+          students={this.props.allStudents || []}
+          user={this.props.user}
+        />
+      </div>
+    );
+  }
+}
+
+// Map Redux state to component props
+const mapState = (state) => {
+  return {
+    allCampuses: state.allCampuses || [],
+    allStudents: state.allStudents || [],
+    user: state.auth?.user || null,
+  };
 };
 
-export default HomePageContainer;
+// Map dispatch actions to component props
+const mapDispatch = (dispatch) => {
+  return {
+    fetchAllCampuses: () => dispatch(fetchAllCampusesThunk()),
+    fetchAllStudents: () => dispatch(fetchAllStudentsThunk()),
+  };
+};
+
+export default connect(mapState, mapDispatch)(HomePageContainer);

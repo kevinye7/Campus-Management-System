@@ -40,20 +40,66 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import LockResetIcon from '@mui/icons-material/LockReset';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   root: {
     padding: '20px',
+    maxWidth: '1400px',
+    margin: '0 auto',
+  },
+  title: {
+    color: '#1d1d1f',
+    fontWeight: 600,
+    marginBottom: '30px',
+    fontSize: 'clamp(24px, 5vw, 36px)',
+  },
+  paper: {
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderRadius: '16px',
+    border: '1px solid rgba(0, 0, 0, 0.08)',
+    boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.08)',
+    overflow: 'hidden',
   },
   tabPanel: {
     padding: '20px 0',
   },
   tableContainer: {
     marginTop: '20px',
+    background: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: '12px',
   },
   actionButtons: {
     marginBottom: '20px',
     display: 'flex',
     gap: '10px',
+    flexWrap: 'wrap',
+  },
+  actionButton: {
+    background: '#1d1d1f !important',
+    color: 'white !important',
+    borderRadius: '10px !important',
+    padding: '10px 20px !important',
+    fontWeight: 500,
+    textTransform: 'none',
+    '&:hover': {
+      background: '#000000 !important',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.2)',
+    },
+  },
+  outlinedButton: {
+    background: 'rgba(0, 0, 0, 0.04) !important',
+    border: '1px solid rgba(0, 0, 0, 0.1) !important',
+    color: '#1d1d1f !important',
+    borderRadius: '10px !important',
+    padding: '10px 20px !important',
+    fontWeight: 500,
+    textTransform: 'none',
+    '&:hover': {
+      background: 'rgba(0, 0, 0, 0.08) !important',
+      transform: 'translateY(-1px)',
+    },
   },
   dialogContent: {
     display: 'flex',
@@ -63,6 +109,10 @@ const useStyles = makeStyles(() => ({
   },
   chip: {
     margin: '2px',
+  },
+  alert: {
+    borderRadius: '12px',
+    marginBottom: '20px',
   },
 }));
 
@@ -204,23 +254,23 @@ const AdminManagementView = (props) => {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h3" component="h1" gutterBottom>
+      <Typography variant="h3" component="h1" className={classes.title}>
         Admin Management
       </Typography>
 
       {error && (
-        <Alert severity="error" style={{ marginBottom: '20px' }}>
+        <Alert severity="error" className={classes.alert}>
           {error}
         </Alert>
       )}
 
       {success && (
-        <Alert severity="success" style={{ marginBottom: '20px' }}>
+        <Alert severity="success" className={classes.alert}>
           {success}
         </Alert>
       )}
 
-      <Paper>
+      <Paper className={classes.paper}>
         <Tabs value={selectedTab} onChange={handleTabChange}>
           <Tab label="Users" />
           <Tab label="User Groups" />
@@ -229,16 +279,14 @@ const AdminManagementView = (props) => {
         <TabPanel value={selectedTab} index={0}>
           <Box className={classes.actionButtons}>
             <Button
-              variant="contained"
-              color="primary"
+              className={classes.actionButton}
               startIcon={<AddIcon />}
               onClick={() => handleOpenUserDialog()}
             >
               Add User
             </Button>
             <Button
-              variant="outlined"
-              color="primary"
+              className={classes.outlinedButton}
               startIcon={<PersonAddIcon />}
               onClick={() => setAssignUserDialogOpen(true)}
             >
@@ -246,8 +294,7 @@ const AdminManagementView = (props) => {
             </Button>
             {associations && associations.length > 0 && (
               <Button
-                variant="outlined"
-                color="secondary"
+                className={classes.outlinedButton}
                 startIcon={<GroupAddIcon />}
                 onClick={() => setAssignAssociationDialogOpen(true)}
               >
@@ -285,13 +332,14 @@ const AdminManagementView = (props) => {
                       <IconButton
                         size="small"
                         onClick={() => handleOpenUserDialog(user)}
+                        style={{ color: '#666666' }}
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         size="small"
-                        color="error"
                         onClick={() => handleDeleteUser(user.id)}
+                        style={{ color: '#666666' }}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -299,9 +347,9 @@ const AdminManagementView = (props) => {
                     <TableCell>
                       <IconButton
                         size="small"
-                        color="warning"
                         onClick={() => handleResetPassword(user.id)}
                         title="Reset Password"
+                        style={{ color: '#666666' }}
                       >
                         <LockResetIcon />
                       </IconButton>
@@ -316,8 +364,7 @@ const AdminManagementView = (props) => {
         <TabPanel value={selectedTab} index={1}>
           <Box className={classes.actionButtons}>
             <Button
-              variant="contained"
-              color="primary"
+              className={classes.actionButton}
               startIcon={<AddIcon />}
               onClick={() => handleOpenUserGroupDialog()}
             >
@@ -358,13 +405,14 @@ const AdminManagementView = (props) => {
                       <IconButton
                         size="small"
                         onClick={() => handleOpenUserGroupDialog(group)}
+                        style={{ color: '#666666' }}
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         size="small"
-                        color="error"
                         onClick={() => handleDeleteUserGroup(group.id)}
+                        style={{ color: '#666666' }}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -463,8 +511,18 @@ const AdminManagementView = (props) => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseUserDialog}>Cancel</Button>
-          <Button onClick={handleUserSubmit} variant="contained" color="primary">
+          <Button onClick={handleCloseUserDialog} style={{ color: '#666666' }}>Cancel</Button>
+          <Button 
+            onClick={handleUserSubmit} 
+            style={{
+              background: '#1d1d1f',
+              color: 'white',
+              borderRadius: '10px',
+              padding: '8px 20px',
+              fontWeight: 500,
+              textTransform: 'none',
+            }}
+          >
             {editingUser ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
@@ -515,8 +573,18 @@ const AdminManagementView = (props) => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseUserGroupDialog}>Cancel</Button>
-          <Button onClick={handleUserGroupSubmit} variant="contained" color="primary">
+          <Button onClick={handleCloseUserGroupDialog} style={{ color: '#666666' }}>Cancel</Button>
+          <Button 
+            onClick={handleUserGroupSubmit} 
+            style={{
+              background: '#1d1d1f',
+              color: 'white',
+              borderRadius: '10px',
+              padding: '8px 20px',
+              fontWeight: 500,
+              textTransform: 'none',
+            }}
+          >
             {editingUserGroup ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
@@ -552,10 +620,15 @@ const AdminManagementView = (props) => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            setAssignUserDialogOpen(false);
-            setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
-          }}>Cancel</Button>
+          <Button 
+            onClick={() => {
+              setAssignUserDialogOpen(false);
+              setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
+            }}
+            style={{ color: '#666666' }}
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={() => {
               if (handleAssignUserToGroup) {
@@ -564,9 +637,15 @@ const AdminManagementView = (props) => {
               setAssignUserDialogOpen(false);
               setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
             }} 
-            variant="contained" 
-            color="primary"
             disabled={!assignFormData.usernameOrEmail || !assignFormData.groupId}
+            style={{
+              background: assignFormData.usernameOrEmail && assignFormData.groupId ? '#1d1d1f' : 'rgba(0, 0, 0, 0.2)',
+              color: 'white',
+              borderRadius: '10px',
+              padding: '8px 20px',
+              fontWeight: 500,
+              textTransform: 'none',
+            }}
           >
             Assign
           </Button>
@@ -603,10 +682,15 @@ const AdminManagementView = (props) => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            setAssignAssociationDialogOpen(false);
-            setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
-          }}>Cancel</Button>
+          <Button 
+            onClick={() => {
+              setAssignAssociationDialogOpen(false);
+              setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
+            }}
+            style={{ color: '#666666' }}
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={() => {
               if (handleAssignUserToAssociation) {
@@ -615,9 +699,15 @@ const AdminManagementView = (props) => {
               setAssignAssociationDialogOpen(false);
               setAssignFormData({ usernameOrEmail: '', groupId: '', associationId: '' });
             }} 
-            variant="contained" 
-            color="primary"
             disabled={!assignFormData.usernameOrEmail || !assignFormData.associationId}
+            style={{
+              background: assignFormData.usernameOrEmail && assignFormData.associationId ? '#1d1d1f' : 'rgba(0, 0, 0, 0.2)',
+              color: 'white',
+              borderRadius: '10px',
+              padding: '8px 20px',
+              fontWeight: 500,
+              textTransform: 'none',
+            }}
           >
             Assign
           </Button>
