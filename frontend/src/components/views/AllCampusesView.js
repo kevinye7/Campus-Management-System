@@ -19,27 +19,86 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { makeStyles } from '@mui/styles';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   root: {
     padding: '20px',
+    maxWidth: '1400px',
+    margin: '0 auto',
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
+    marginBottom: '30px',
+    flexWrap: 'wrap',
+    gap: '15px',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    },
+  },
+  headerTitle: {
+    color: '#1d1d1f',
+    fontWeight: 600,
+    fontSize: 'clamp(24px, 5vw, 36px)',
+  },
+  addButton: {
+    background: '#1d1d1f !important',
+    color: 'white !important',
+    borderRadius: '10px !important',
+    padding: '10px 20px !important',
+    fontWeight: 500,
+    textTransform: 'none',
+    '&:hover': {
+      background: '#000000 !important',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.2)',
+    },
   },
   campusCard: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderRadius: '16px',
+    border: '1px solid rgba(0, 0, 0, 0.08)',
+    boxShadow: '0 4px 24px 0 rgba(0, 0, 0, 0.08)',
+    transition: 'all 0.3s ease',
+    overflow: 'hidden',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.12)',
+      border: '1px solid rgba(0, 0, 0, 0.12)',
+    },
   },
   campusImage: {
     height: '200px',
     objectFit: 'cover',
+    width: '100%',
   },
   cardContent: {
     flexGrow: 1,
+    padding: '20px !important',
+  },
+  campusName: {
+    color: '#1d1d1f',
+    fontWeight: 600,
+    textDecoration: 'none !important',
+    marginBottom: '10px',
+    display: 'block',
+    '&:hover': {
+      color: '#000000',
+    },
+  },
+  campusText: {
+    color: '#666666',
+  },
+  emptyText: {
+    color: '#666666',
+    textAlign: 'center',
+    padding: '40px',
   },
 }));
 
@@ -51,21 +110,20 @@ const AllCampusesView = (props) => {
   if (!allCampuses.length) {
     return (
       <div className={classes.root}>
-        <Box className={classes.header}>
-          <Typography variant="h3" component="h1">
-            All Campuses
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            component={Link}
-            to="/newcampus"
-          >
-            Add New Campus
-          </Button>
-        </Box>
-        <Typography variant="body1" color="text.secondary">
+      <Box className={classes.header}>
+        <Typography variant="h3" component="h1" className={classes.headerTitle}>
+          All Campuses
+        </Typography>
+        <Button
+          className={classes.addButton}
+          startIcon={<AddIcon />}
+          component={Link}
+          to="/newcampus"
+        >
+          Add New Campus
+        </Button>
+      </Box>
+        <Typography variant="body1" className={classes.emptyText}>
           There are no campuses.
         </Typography>
       </div>
@@ -76,12 +134,11 @@ const AllCampusesView = (props) => {
   return (
     <div className={classes.root}>
       <Box className={classes.header}>
-        <Typography variant="h3" component="h1">
+        <Typography variant="h3" component="h1" className={classes.headerTitle}>
           All Campuses
         </Typography>
         <Button
-          variant="contained"
-          color="primary"
+          className={classes.addButton}
           startIcon={<AddIcon />}
           component={Link}
           to="/newcampus"
@@ -107,26 +164,29 @@ const AllCampusesView = (props) => {
                   variant="h5" 
                   component={Link} 
                   to={`/campus/${campus.id}`}
-                  style={{ textDecoration: 'none', color: 'inherit', display: 'block', marginBottom: '10px' }}
+                  className={classes.campusName}
                 >
                   {campus.name}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
+                <Typography variant="body2" className={classes.campusText} paragraph>
                   {campus.address}
                 </Typography>
                 {campus.description && (
-                  <Typography variant="body2" color="text.secondary" paragraph>
+                  <Typography variant="body2" className={classes.campusText} paragraph>
                     {campus.description.length > 100 
                       ? campus.description.substring(0, 100) + '...' 
                       : campus.description}
                   </Typography>
                 )}
               </CardContent>
-              <CardActions>
+              <CardActions style={{ padding: '0 20px 20px 20px' }}>
                 <IconButton
-                  color="error"
                   onClick={() => deleteCampus(campus.id)}
                   aria-label="delete campus"
+                  style={{ 
+                    color: '#666666',
+                    '&:hover': { color: '#1d1d1f' }
+                  }}
                 >
                   <DeleteIcon />
                 </IconButton>
