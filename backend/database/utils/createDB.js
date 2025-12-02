@@ -5,13 +5,13 @@ It creates the actual Postgres database.
 After the Postgres database is created, Sequelize can connect to it.
 ==================================================*/
 const pgtools = require('pgtools');  // Import tool to create Postgres database.
-const {dbName, dbUser, dbPwd} = require('./configDB');  // Import the database name, username, and password.
+const {dbName, dbUser, dbPwd, dbHost, dbPort} = require('./configDB');  // Import the database name, username, password, host, and port.
 
 // Declare configuration parameters of the Postgres database.
 const config = {
   user: dbUser,
-  host: 'localhost',
-  port: 5432,
+  host: dbHost,
+  port: parseInt(dbPort),
   password: dbPwd
 };
     
